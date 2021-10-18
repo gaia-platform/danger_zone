@@ -75,7 +75,19 @@ ruleset objects_detection
 
     on_update(detection.processed)
     {
-        // TODO: Once a detection is processed, we no longer need to keep its data in the database.
+        // Once a detection is processed, we no longer need to keep its data in the database.
+        detection_t dec;
+        dec = detection;
+
+        for (auto& obj = *dec.d_objects().begin();
+            obj;
+            obj = *dec.d_objects().begin())
+        {
+            dec.d_objects().disconnect(obj);
+            obj.delete_row();
+        }
+
+        detection.remove();
     }
 }
 
@@ -118,5 +130,8 @@ ruleset zone_transition : serial_group()
             danger_zone_t::get_instance()->trigger_log(
                 c_log_seconds_past, c_log_seconds_forward, log_file_base_name, topics);
         }
+
+        // We no longer need the event record in the database.
+        event.remove();
     }
 }
