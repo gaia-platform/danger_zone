@@ -167,7 +167,7 @@ private:
 
         // Create a detection record to reference all detected objects.
         auto db_detection_id = gaia::danger_zone::detection_t::insert_row(
-            msg->header.frame_id.c_str(), msg->header.stamp.sec, msg->header.stamp.nanosec);
+            msg->header.frame_id.c_str(), msg->header.stamp.sec, msg->header.stamp.nanosec, false);
         auto db_detection = gaia::danger_zone::detection_t::get(db_detection_id);
 
         for (const vision_msgs::msg::Detection3D& detection : msg->detections)
