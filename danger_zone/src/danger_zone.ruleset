@@ -52,6 +52,8 @@ ruleset objects_detection
         danger_zone_t::get_instance()->send_obstacle_array_message(
             obstacles,
             detection.frame_id, detection.seconds, detection.nseconds);
+
+        detection.processed = true;
     }
 
     on_update(d_object.zone_id)
@@ -69,6 +71,11 @@ ruleset objects_detection
                 from_zone_id: obj->zone_id(),
                 to_zone_id: d_object.zone_id);
         }
+    }
+
+    on_update(detection.processed)
+    {
+        // TODO: Once a detection is processed, we no longer need to keep its data in the database.
     }
 }
 

@@ -27,7 +27,9 @@ table detection (
 
     -- Seconds/nanoseconds of detection frame.
     seconds int32,
-    nseconds int32
+    nseconds int32,
+
+    processed bool
 )
 
 table d_object (
