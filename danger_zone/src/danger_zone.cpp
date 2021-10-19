@@ -184,7 +184,7 @@ private:
                 }
             }
 
-            if (max_hyp.hypothesis.class_id == "")
+            if (max_hyp.hypothesis.class_id.empty())
             {
                 gaia_log::app().warn("Detected object with no class_id!");
                 continue;
@@ -226,6 +226,7 @@ int main(int argc, char* argv[])
     gaia::system::initialize();
 
     gaia::db::begin_transaction();
+    clean_db();
     initialize_zones();
     gaia::db::commit_transaction();
 

@@ -14,6 +14,9 @@ void initialize_zones();
 // If the object does not exist, create it.
 gaia::danger_zone::object_t get_object(const char* object_id, const char* class_id);
 
+// Remove all the objects from the database.
+void clean_db();
+
 // Dump the content of specific tables.
 void dump_zones();
 void dump_objects();
