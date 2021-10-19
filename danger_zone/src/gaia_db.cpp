@@ -29,8 +29,7 @@ void initialize_zones()
 
 object_t get_object(const char* object_id, const char* class_id)
 {
-    auto object_iter = object_t::list().where(
-        object_expr::id == object_id);
+    auto object_iter = object_t::list().where(object_expr::id == object_id);
 
     object_t object;
 
@@ -76,16 +75,14 @@ void dump_d_object(const d_object_t& d_object)
     printf("d_object score:         %f\n", d_object.score());
     printf("d_object range:         %d\n", d_object.range_id());
     printf("d_object direction:     %d\n", d_object.direction_id());
-    printf("d_object pos:           x = %f, y = %f, z = %f\n",
-        d_object.pos_x(), d_object.pos_y(), d_object.pos_z());
-    printf("d_object size:          x = %f, y = %f, z = %f\n",
-        d_object.size_x(), d_object.size_y(), d_object.size_z());
-    printf("d_object orient:        x = %f, y = %f, z = %f, w = %f\n",
-        d_object.orient_x(), d_object.orient_y(), d_object.orient_z(), d_object.orient_w());
+    printf("d_object pos:           x = %f, y = %f, z = %f\n", d_object.pos_x(), d_object.pos_y(), d_object.pos_z());
+    printf("d_object size:          x = %f, y = %f, z = %f\n", d_object.size_x(), d_object.size_y(), d_object.size_z());
+    printf("d_object orient:        x = %f, y = %f, z = %f, w = %f\n", d_object.orient_x(), d_object.orient_y(), d_object.orient_z(), d_object.orient_w());
     printf("d_object zone id:       %d\n", d_object.zone_id());
 }
 
-void dump_zone_transition_event(const zone_transition_event_t& zone_transition_event)
+void dump_zone_transition_event(
+    const zone_transition_event_t& zone_transition_event)
 {
     printf("zone transition event object id:    %s\n", zone_transition_event.object_id());
     printf("zone transition event from zone id: %d\n", zone_transition_event.from_zone_id());
@@ -166,4 +163,39 @@ void dump_db()
     printf("\n");
     dump_zones();
     dump_db_state();
+}
+
+template <class T_table>
+void delete_all_rows()
+{
+    for (auto obj = *T_table::list().begin();
+         obj;
+         obj = *T_table::list().begin())
+    {
+        obj.delete_row();
+    }
+}
+
+void clean_db()
+{
+    for (auto zone = *zone_t::list().begin();
+         zone;
+         zone = *zone_t::list().begin())
+    {
+        zone.objects().clear();
+        zone.delete_row();
+    }
+
+    for (auto detection = *detection_t::list().begin();
+         detection;
+         detection = *detection_t::list().begin())
+    {
+        detection.d_objects().clear();
+        detection.delete_row();
+    }
+
+    delete_all_rows<object_t>();
+    delete_all_rows<d_object_t>();
+    delete_all_rows<zone_transition_event_t>();
+    delete_all_rows<send_trigger_log_action_t>();
 }

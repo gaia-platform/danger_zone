@@ -89,12 +89,10 @@ table zone_transition_event (
 -- it is ideal to separate code that deal with the database from the code that deals with
 -- external world. You can do this by creating rules which only purpose is to deal with
 -- the external world and that are triggered by specific "action" records.
-
-table send_obstacle_array_msg_action (
-
-)
+--
 
 
 table send_trigger_log_action (
-
+    seconds_past uint32,
+    seconds_forward uint32
 )
