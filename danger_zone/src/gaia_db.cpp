@@ -67,6 +67,7 @@ void dump_detection(const detection_t& detection)
     printf("detection frame id:     %s\n", detection.frame_id());
     printf("detection seconds:      %d\n", detection.seconds());
     printf("detection nseconds:     %d\n", detection.nseconds());
+    printf("detection processed:    %d\n", (int)detection.processed());
 }
 
 void dump_d_object(const d_object_t& d_object)
@@ -154,9 +155,9 @@ void dump_zone_transition_events()
 void dump_db_state()
 {
     printf("\n");
-    dump_objects();
-    dump_detections();
     dump_d_objects();
+    dump_detections();
+    dump_objects();
     dump_zone_transition_events();
 }
 
