@@ -142,14 +142,14 @@ public:
     }
 
     void trigger_log(
-        int start_sec, uint32_t start_nsec, int end_sec, uint32_t end_nsec,
+        int32_t start_sec, uint32_t start_nsec, int32_t end_sec, uint32_t end_nsec,
         std::string file_name, std::vector<std::string> topics) override
     {
         m_snapshot_client->send_request(start_sec, start_nsec, end_sec, end_nsec, file_name, topics);
     }
 
     void trigger_log(
-        int seconds_past, int seconds_forward,
+        int32_t seconds_past, int32_t seconds_forward,
         std::string file_name, std::vector<std::string> topics) override
     {
         auto base_time = get_clock()->now();

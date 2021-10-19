@@ -17,9 +17,9 @@ void initialize_zones()
 
     for (uint8_t zone_id : zones)
     {
-        auto zone_iter = zone_t::list().where(zone_expr::id == zone_id);
+        auto zone_it = zone_t::list().where(zone_expr::id == zone_id);
 
-        if (zone_iter.begin() == zone_iter.end())
+        if (zone_it.begin() == zone_it.end())
         {
             gaia_log::app().info("Creating {} zone.", zones_t::zone_id_str(zone_id));
             zone_t::insert_row(zone_id);
@@ -29,12 +29,12 @@ void initialize_zones()
 
 object_t get_object(const char* object_id, const char* class_id)
 {
-    auto object_iter = object_t::list().where(
+    auto object_it = object_t::list().where(
         object_expr::id == object_id);
 
     object_t object;
 
-    if (object_iter.begin() == object_iter.end())
+    if (object_it.begin() == object_it.end())
     {
         gaia_log::app().info("Found new object: {}", object_id);
 
@@ -44,7 +44,7 @@ object_t get_object(const char* object_id, const char* class_id)
     }
     else
     {
-        object = *object_iter.begin();
+        object = *object_it.begin();
     }
 
     return object;
