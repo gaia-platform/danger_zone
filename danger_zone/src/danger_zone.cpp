@@ -143,20 +143,22 @@ public:
 
     void trigger_log(
         int start_sec, uint32_t start_nsec, int end_sec, uint32_t end_nsec,
-        std::string file_name, std::vector<std::string> topics) override
+        std::string file_name, std::vector<std::string> topics,
+        std::vector<std::string> msg_types) override
     {
-        m_snapshot_client->send_request(start_sec, start_nsec, end_sec, end_nsec, file_name, topics);
+        m_snapshot_client->send_request(start_sec, start_nsec, end_sec, end_nsec, file_name, topics, msg_types);
     }
 
     void trigger_log(
         int seconds_past, int seconds_forward,
-        std::string file_name, std::vector<std::string> topics) override
+        std::string file_name, std::vector<std::string> topics, 
+        std::vector<std::string> msg_types) override
     {
         auto base_time = get_clock()->now();
         auto base_sec = base_time.seconds();
         auto base_nsec = base_time.nanoseconds();
 
-        trigger_log(base_sec - seconds_past, base_nsec, base_sec + seconds_forward, base_nsec, file_name, topics);
+        trigger_log(base_sec - seconds_past, base_nsec, base_sec + seconds_forward, base_nsec, file_name, topics, msg_types);
     }
 
 private:

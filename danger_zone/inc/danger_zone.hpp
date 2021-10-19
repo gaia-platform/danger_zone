@@ -117,7 +117,7 @@ public:
      */
     virtual void trigger_log(int start_sec, uint32_t start_nsec,
         int end_sec, uint32_t end_nsec, std::string file_name,
-        std::vector<std::string>topics) = 0;
+        std::vector<std::string>topics, std::vector<std::string> msg_types) = 0;
 
     /**
      * Call this from within a ruleset rule to trigger a log event.
@@ -131,7 +131,7 @@ public:
      * @exceptsafe yes
      */
     virtual void trigger_log(int seconds_past, int seconds_forward,
-        std::string file_name, std::vector<std::string>topics) = 0;
+        std::string file_name, std::vector<std::string>topics, std::vector<std::string> msg_types) = 0;
 
     /**
      * Constructor.

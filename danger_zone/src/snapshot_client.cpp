@@ -58,11 +58,14 @@ void SnapshotClient::connect(rclcpp::Node* caller, std::string service_name)
  * @param[in] uint32_t end_nsec
  * @param[in] std::string file_name
  * @param[in] std::vector<std::string>topics
+ * @param[in] std::vector<std::string>msg_types
  * @return bool : success = true, failure = false;
  * @throws
  * @exceptsafe yes
  */
-bool SnapshotClient::send_request(int start_sec, uint32_t start_nsec, int end_sec, uint32_t end_nsec, std::string file_name, std::vector<std::string> topics)
+bool SnapshotClient::send_request(int start_sec, uint32_t start_nsec, 
+  int end_sec, uint32_t end_nsec, 
+  std::string file_name, std::vector<std::string> topics, std::vector<std::string> msg_types)
 {
     if (!m_snapshot_client->wait_for_service(m_service_wait_time))
     {
@@ -92,9 +95,24 @@ bool SnapshotClient::send_request(int start_sec, uint32_t start_nsec, int end_se
     req->set__start_time(start_time);
     req->set__stop_time(end_time);
     req->set__filename(file_name);
-    req->set__topics(topics);
+
+    auto topic_details = std::make_shared<std::vector<rosbag2_snapshot_msgs::msg::TopicDetails>>();
+
+    auto len = topics.size();
+
+    for(std::size_t index= 0; index < len; index++)
+    {
+      auto topic_detail = std::make_shared<rosbag2_snapshot_msgs::msg::TopicDetails>();
+      topic_detail->set__name(topics[index]);
+      topic_detail->set__type(msg_types[index]);
+      topic_details->push_back(*topic_detail);
+    }
+
+    req->set__topics(*topic_details);
 
     auto result = m_snapshot_client->async_send_request(req);
+
+    for(auto topic : topics)
 
     RCLCPP_DEBUG(rclcpp::get_logger("rclcpp"), "Service request sent: %s", m_service_name.c_str());
 
