@@ -65,10 +65,11 @@ ruleset objects_detection
             // Create a message for each obstacle.
             // TODO: the first argument is the class_id and is currently not used
             //  by the simulation. Putting a placeholder for now.
-            obstacles->add("_", obj.zone_id, direction_zone, obj.pos_x, obj.pos_y,
-                           obj.pos_z, obj.size_x, obj.size_y, obj.size_z,
-                           obj.orient_x, obj.orient_y, obj.orient_z,
-                           obj.orient_w);
+            obstacles->add(
+                "_", obj.zone_id, direction_zone,
+                obj.pos_x, obj.pos_y, obj.pos_z,
+                obj.size_x, obj.size_y, obj.size_z,
+                obj.orient_x, obj.orient_y, obj.orient_z, obj.orient_w);
         }
 
         // Now that all obstacle messages have been collected, we can send them.
