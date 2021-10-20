@@ -1,8 +1,16 @@
-/////////////////////////////////////////////
-// Copyright (c) Gaia Platform LLC
-// All rights reserved.
-/////////////////////////////////////////////
-
+// Copyright 2021 Gaia Platform
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.#include <iostream>
 
 #include "snapshot_client.hpp"
 
@@ -44,19 +52,20 @@ void SnapshotClient::connect(rclcpp::Node* caller, std::string service_name)
 /**
  * Tell the ROS service to take a snapshot
  *
- * @param[in] int32_t start_sec
+ * @param[in] int start_sec
  * @param[in] uint32_t start_nsec
- * @param[in] int32_t end_sec
+ * @param[in] int end_sec
  * @param[in] uint32_t end_nsec
  * @param[in] std::string file_name
  * @param[in] std::vector<std::string>topics
+ * @param[in] std::vector<std::string>msg_types
  * @return bool : success = true, failure = false;
  * @throws
  * @exceptsafe yes
  */
-bool SnapshotClient::send_request(
-    int32_t start_sec, uint32_t start_nsec, int32_t end_sec, uint32_t end_nsec,
-    std::string file_name, std::vector<std::string> topics)
+bool SnapshotClient::send_request(int start_sec, uint32_t start_nsec, 
+  int end_sec, uint32_t end_nsec, 
+  std::string file_name, std::vector<std::string> topics, std::vector<std::string> msg_types)
 {
     if (!m_snapshot_client->wait_for_service(m_service_wait_time))
     {
@@ -86,7 +95,20 @@ bool SnapshotClient::send_request(
     req->set__start_time(start_time);
     req->set__stop_time(end_time);
     req->set__filename(file_name);
-    req->set__topics(topics);
+
+    auto topic_details = std::make_shared<std::vector<rosbag2_snapshot_msgs::msg::TopicDetails>>();
+
+    auto len = topics.size();
+
+    for(std::size_t index= 0; index < len; index++)
+    {
+      auto topic_detail = std::make_shared<rosbag2_snapshot_msgs::msg::TopicDetails>();
+      topic_detail->set__name(topics[index]);
+      topic_detail->set__type(msg_types[index]);
+      topic_details->push_back(*topic_detail);
+    }
+
+    req->set__topics(*topic_details);
 
     auto result = m_snapshot_client->async_send_request(req);
 
