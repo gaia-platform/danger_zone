@@ -66,7 +66,7 @@ void dump_detection(const detection_t& detection)
 {
     printf("detection frame id:     %s\n", detection.frame_id());
     printf("detection seconds:      %d\n", detection.seconds());
-    printf("detection nseconds:     %d\n", detection.nseconds());
+    printf("detection nano_seconds: %d\n", detection.nano_seconds());
     printf("detection processed:    %d\n", static_cast<int>(detection.processed()));
 }
 
@@ -85,6 +85,8 @@ void dump_d_object(const d_object_t& d_object)
     printf(
         "d_object orient:        x = %f, y = %f, z = %f, w = %f\n",
         d_object.orient_x(), d_object.orient_y(), d_object.orient_z(), d_object.orient_w());
+    printf("d_object seconds:       %d\n", d_object.seconds());
+    printf("d_object nano_seconds:  %d\n", d_object.nano_seconds());
     printf("d_object zone id:       %d\n", d_object.zone_id());
 }
 
@@ -93,6 +95,8 @@ void dump_zone_transition_event(const zone_transition_event_t& zone_transition_e
     printf("zone transition event object id:    %s\n", zone_transition_event.object_id());
     printf("zone transition event from zone id: %d\n", zone_transition_event.from_zone_id());
     printf("zone transition event to zone id:   %d\n", zone_transition_event.to_zone_id());
+    printf("zone transition event seconds:      %d\n", zone_transition_event.seconds());
+    printf("zone transition event nano_seconds: %d\n", zone_transition_event.nano_seconds());
 }
 
 void dump_zones()

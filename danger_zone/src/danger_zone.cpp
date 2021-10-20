@@ -46,14 +46,14 @@ struct danger_zone_obstacles_t : public obstacles_t
 
     static danger_zone_msgs::msg::ObstacleArray::UniquePtr build_obstacle_array_message(
         std::vector<danger_zone_msgs::msg::Obstacle> obstacles,
-        std::string frame_id, int32_t sec, uint32_t nsec)
+        std::string frame_id, int32_t seconds, uint32_t nano_seconds)
     {
         danger_zone_msgs::msg::ObstacleArray::UniquePtr obstacle_array(new danger_zone_msgs::msg::ObstacleArray);
 
         obstacle_array->header = std_msgs::msg::Header();
         obstacle_array->header.frame_id = frame_id;
-        obstacle_array->header.stamp.sec = sec;
-        obstacle_array->header.stamp.nanosec = nsec;
+        obstacle_array->header.stamp.sec = seconds;
+        obstacle_array->header.stamp.nanosec = nano_seconds;
 
         for (const auto& obstacle : obstacles)
         {
@@ -132,31 +132,26 @@ public:
 
     void send_obstacle_array_message(
         std::shared_ptr<obstacles_t> obstacles,
-        std::string frame_id, int32_t sec, uint32_t nsec) override
+        std::string frame_id, int32_t seconds, uint32_t nano_seconds) override
     {
         std::shared_ptr<danger_zone_obstacles_t> danger_zone_obstacles
             = std::dynamic_pointer_cast<danger_zone_obstacles_t>(obstacles);
 
         m_obstacles_pub->publish(danger_zone_obstacles_t::build_obstacle_array_message(
-            danger_zone_obstacles->obstacles_vector, frame_id, sec, nsec));
+            danger_zone_obstacles->obstacles_vector, frame_id, seconds, nano_seconds));
     }
 
     void trigger_log(
-        int32_t start_sec, uint32_t start_nsec, int32_t end_sec, uint32_t end_nsec,
-        std::string file_name, std::vector<std::string> topics) override
-    {
-        m_snapshot_client->send_request(start_sec, start_nsec, end_sec, end_nsec, file_name, topics);
-    }
-
-    void trigger_log(
+        int32_t base_seconds, uint32_t base_nano_seconds,
         int32_t seconds_past, int32_t seconds_forward,
         std::string file_name, std::vector<std::string> topics) override
     {
-        auto base_time = get_clock()->now();
-        auto base_sec = base_time.seconds();
-        auto base_nsec = base_time.nanoseconds();
-
-        trigger_log(base_sec - seconds_past, base_nsec, base_sec + seconds_forward, base_nsec, file_name, topics);
+        int32_t start_seconds = base_seconds - seconds_past;
+        int32_t end_seconds = base_seconds + seconds_forward;
+        m_snapshot_client->send_request(
+            start_seconds, base_nano_seconds,
+            end_seconds, base_nano_seconds,
+            file_name, topics);
     }
 
 private:
@@ -200,6 +195,7 @@ private:
                 detection.bbox.size.x, detection.bbox.size.y, detection.bbox.size.z,
                 max_hyp.pose.pose.orientation.x, max_hyp.pose.pose.orientation.y,
                 max_hyp.pose.pose.orientation.z, max_hyp.pose.pose.orientation.w,
+                msg->header.stamp.sec, msg->header.stamp.nanosec,
                 zones_t::c_no_zone);
             auto db_detected_object = gaia::danger_zone::d_object_t::get(db_detected_object_id);
 
