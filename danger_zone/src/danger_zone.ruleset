@@ -54,7 +54,7 @@ ruleset objects_detection
                 from_zone_id: obj->zone_id(),
                 to_zone_id: d_object.zone_id,
                 seconds: d_object.seconds,
-                nano_seconds: d_object.nano_seconds);
+                nanoseconds: d_object.nanoseconds);
         }
     }
 
@@ -79,7 +79,7 @@ ruleset objects_detection
         // Now that all obstacle messages have been collected, we can send them.
         danger_zone_t::get_instance()->send_obstacle_array_message(
             obstacles,
-            detection.frame_id, detection.seconds, detection.nano_seconds);
+            detection.frame_id, detection.seconds, detection.nanoseconds);
     }
 }
 
@@ -117,7 +117,7 @@ ruleset zone_transition : serial_group()
         {
             send_trigger_log_action.insert(
                 seconds: event.seconds,
-                nano_seconds: event.nano_seconds,
+                nanoseconds: event.nanoseconds,
                 seconds_past: c_log_seconds_past,
                 seconds_forward: c_log_seconds_forward);
         }
@@ -132,7 +132,7 @@ ruleset snapshotter
     on_insert(action:send_trigger_log_action)
     {
         danger_zone_t::get_instance()->trigger_log(
-            action.seconds, action.nano_seconds,
+            action.seconds, action.nanoseconds,
             action.seconds_past, action.seconds_forward,
             log_file_base_name,
             topic_names, topic_types);
