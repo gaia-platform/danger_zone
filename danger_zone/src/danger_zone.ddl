@@ -7,13 +7,24 @@ database danger_zone
 
 table zone (
     id uint8 unique,
-    objects references object[]
+    objects references object[],
+    object_classes references object_class[]
+)
+
+table object_class (
+    id string unique,
+    objects references object[],
+    zone_id uint8,
+    begin_logging_zone references zone
+        where object_class.zone_id = zone.id
 )
 
 table object (
     -- For now this ID is just a merge of class_id + a number (taken as-is from the simulation).
     id string unique,
     class_id string,
+    object_class references object_class
+        where object.class_id = object_class.id,
     zone_id uint8,
     zone references zone
         where object.zone_id = zone.id

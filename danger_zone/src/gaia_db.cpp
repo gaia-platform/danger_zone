@@ -21,10 +21,49 @@ void initialize_zones()
 
         if (zone_it.begin() == zone_it.end())
         {
-            gaia_log::app().info("Creating {} zone.", zones_t::zone_id_str(zone_id));
+            gaia_log::app().info("Creating {} zone with id: {}.", zones_t::zone_id_str(zone_id), zone_id);
             zone_t::insert_row(zone_id);
         }
     }
+}
+
+void initialize_object_classes()
+{
+    std::map<std::string, uint8_t> class_to_zone = {
+        {"Person", zones_t::c_yellow_zone}};
+
+    for (const auto& pair : class_to_zone)
+    {
+        auto obj_class_it = object_class_t::list().where(object_class_expr::id == pair.first);
+
+        if (obj_class_it.begin() == obj_class_it.end())
+        {
+            gaia_log::app().info("Creating object class: {}, begin logging zone: {}.", pair.first, zones_t::zone_id_str(pair.second));
+            object_class_t::insert_row(pair.first.c_str(), pair.second);
+        }
+    }
+}
+
+gaia::danger_zone::object_class_t get_object_class(const char* class_id)
+{
+    auto obj_class_it = object_class_t::list().where(
+        object_class_expr::id == class_id);
+
+    object_class_t obj_class;
+
+    if (obj_class_it.begin() == obj_class_it.end())
+    {
+        gaia_log::app().info("Found new object class: {}, begin logging zone: {}.", class_id, zones_t::zone_id_str(zones_t::c_red_zone));
+
+        obj_class = object_class_t::get(
+            object_class_t::insert_row(class_id, zones_t::c_red_zone));
+    }
+    else
+    {
+        obj_class = *obj_class_it.begin();
+    }
+
+    return obj_class;
 }
 
 object_t get_object(const char* object_id, const char* class_id)
@@ -37,6 +76,9 @@ object_t get_object(const char* object_id, const char* class_id)
     if (object_it.begin() == object_it.end())
     {
         gaia_log::app().info("Found new object: {}", object_id);
+
+        // Ensure the object class is created.
+        get_object_class(class_id);
 
         // The object_id is in the form: 'Person (12)'.
         object = object_t::get(
@@ -193,7 +235,16 @@ void clean_db()
          zone = *zone_t::list().begin())
     {
         zone.objects().clear();
+        zone.object_classes().clear();
         zone.delete_row();
+    }
+
+    for (auto object_class = *object_class_t::list().begin();
+         object_class;
+         object_class = *object_class_t::list().begin())
+    {
+        object_class.objects().clear();
+        object_class.delete_row();
     }
 
     for (auto detection = *detection_t::list().begin();

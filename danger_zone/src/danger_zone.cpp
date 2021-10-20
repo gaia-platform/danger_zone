@@ -7,7 +7,6 @@
 
 #include <functional>
 #include <memory>
-#include <mutex>
 
 #include <danger_zone_msgs/msg/obstacle_array.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -222,7 +221,11 @@ int main(int argc, char* argv[])
 
     gaia::db::begin_transaction();
     clean_db();
+    gaia::db::commit_transaction();
+
+    gaia::db::begin_transaction();
     initialize_zones();
+    initialize_object_classes();
     gaia::db::commit_transaction();
 
     rclcpp::init(argc, argv);
