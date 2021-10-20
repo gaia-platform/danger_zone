@@ -42,5 +42,6 @@ public:
 
     bool send_request(
         int start_sec, uint32_t start_nsec, int end_sec, uint32_t end_nsec,
-        std::string file_name, std::vector<std::string> topics);
+        std::string file_name,
+        std::vector<std::string> topic_names, std::vector<std::string> topic_types);
 };
