@@ -107,20 +107,13 @@ ruleset zone_transition : serial_group()
         obj_w.zone_id = event.to_zone_id;
         obj_w.update_row();
 
-        // TODO: Need to add logic to check whether logging was already being done.
-        if (strcmp(obj->class_id(), "Person") == 0)
+        if (zones_t::is_object_moving_away(event.from_zone_id, event.to_zone_id))
         {
-            if (event.from_zone_id == zones_t::c_green_zone
-                && event.to_zone_id != zones_t::c_no_zone)
-            {
-                send_trigger_log_action.insert(
-                    seconds: event.seconds,
-                    nano_seconds: event.nano_seconds,
-                    seconds_past: c_log_seconds_past,
-                    seconds_forward: c_log_seconds_forward);
-            }
+            // TODO: in future we may stop logging here if appropriate.
+            return;
         }
-        else if (event.to_zone_id == zones_t::c_red_zone)
+
+        if (obj->zone_id() == obj->object_class().zone_id())
         {
             send_trigger_log_action.insert(
                 seconds: event.seconds,

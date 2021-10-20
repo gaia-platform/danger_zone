@@ -30,7 +30,8 @@ void initialize_zones()
 void initialize_object_classes()
 {
     std::map<std::string, uint8_t> class_to_zone = {
-        {"Person", zones_t::c_yellow_zone}};
+        {"Person", zones_t::c_yellow_zone},
+        {"DumpTruck", zones_t::c_red_zone}};
 
     for (const auto& pair : class_to_zone)
     {

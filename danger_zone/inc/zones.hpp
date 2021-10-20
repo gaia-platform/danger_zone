@@ -30,6 +30,11 @@ public:
     static uint8_t get_direction_zone_id(double z, double x);
 
     /**
+     * Tells if an object moving from a zone to another is getting closer or further.
+     */
+    static bool is_object_moving_away(uint8_t from_zone_id, uint8_t to_zone_id);
+
+    /**
      * In the app we use 0 to denote no_zone because Gaia DB assign 0
      * to numeric values by default. The simulator though uses 0 to denote
      * red area. This function converts from app to simulation id.
@@ -47,8 +52,8 @@ private:
 
     static constexpr int c_index_radius = 0;
     static constexpr int c_index_zone = 1;
-    static constexpr double c_red_zone_radius = 10.0;
-    static constexpr double c_yellow_zone_radius = 20.0;
+    static constexpr double c_red_zone_radius = 15.0;
+    static constexpr double c_yellow_zone_radius = 30.0;
     static constexpr double c_green_zone_radius = 2000.0;
 
     static constexpr double c_range_id[3][2] = {
