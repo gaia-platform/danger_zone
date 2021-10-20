@@ -13,10 +13,7 @@
 #define DirectionZoneCodeDefault 6
 
 // Set these to what you want to log, add or subtract at will.
-std::vector<std::string> topics{"/image", "/scan"}; // matches names from Gaia Mine Sim
-
-//TODO : Just temporary, to quickly get past a build break, not ideal as is
-std::vector<std::string> msg_types{"sensor_msgs/Image", "sensor_msgs/LaserScan"}; // matches names from Gaia Mine Sim
+std::vector<std::string> topics{"/image", "/lidar"};
 
 // Set this to an existing directory + desired log name.
 std::string log_file_base_name = "~/logs/retrolog";
@@ -140,7 +137,9 @@ ruleset snapshotter
     on_insert(action:send_trigger_log_action)
     {
         danger_zone_t::get_instance()->trigger_log(
-            action.seconds_past, action.seconds_forward, log_file_base_name, topics, msg_types);
+            action.seconds, action.nano_seconds,
+            action.seconds_past, action.seconds_forward,
+            log_file_base_name, topics);
 
         action.remove();
     }
