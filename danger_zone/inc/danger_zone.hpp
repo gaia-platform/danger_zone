@@ -118,7 +118,8 @@ public:
     virtual void trigger_log(
         int32_t base_seconds, uint32_t base_nano_seconds,
         int32_t seconds_past, int32_t seconds_forward,
-        std::string file_name, std::vector<std::string>topics) = 0;
+        std::string file_name,
+        std::vector<std::string>topic_names, std::vector<std::string>topic_types) = 0;
 
     /**
      * Constructor.
