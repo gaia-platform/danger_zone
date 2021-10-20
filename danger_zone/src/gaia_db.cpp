@@ -29,6 +29,8 @@ void initialize_zones()
 
 void initialize_object_classes()
 {
+    // The missing classes are created on the fly, with begin_logging_zone = red,
+    // as they are detected by the sensors.
     std::map<std::string, uint8_t> class_to_zone = {
         {"Person", zones_t::c_yellow_zone},
         {"DumpTruck", zones_t::c_red_zone}};

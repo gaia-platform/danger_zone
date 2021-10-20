@@ -78,7 +78,7 @@ bool zones_t::is_object_moving_away(uint8_t from_zone_id, uint8_t to_zone_id)
 {
     if (from_zone_id == c_no_zone)
     {
-        return true;
+        return false;
     }
 
     return to_zone_id > from_zone_id;

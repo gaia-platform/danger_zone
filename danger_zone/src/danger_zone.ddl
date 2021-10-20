@@ -11,6 +11,11 @@ table zone (
     object_classes references object_class[]
 )
 
+-- Represent the type of an object such as: Person, Truck, Sign, etc..
+-- Each object class has its own criteria to start logging.
+-- For instance, if Person has begin_logging_zone = yellow it means
+-- that the logging will be triggered as soon as a Person cross the
+-- yellow zone.
 table object_class (
     id string unique,
     objects references object[],
