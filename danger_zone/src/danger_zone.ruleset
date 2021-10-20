@@ -18,8 +18,8 @@ std::vector<std::string> topics{"/image", "/lidar"};
 // Set this to an existing directory + desired log name.
 std::string log_file_base_name = "~/logs/retrolog";
 
-const int c_log_seconds_past = 5;
-const int c_log_seconds_forward = 25;
+const int32_t c_log_seconds_past = 5;
+const int32_t c_log_seconds_forward = 25;
 
 using namespace gaia::danger_zone;
 
@@ -50,7 +50,9 @@ ruleset objects_detection
             zone_transition_event.insert(
                 object_id: obj->id(),
                 from_zone_id: obj->zone_id(),
-                to_zone_id: d_object.zone_id);
+                to_zone_id: d_object.zone_id,
+                seconds: d_object.seconds,
+                nano_seconds: d_object.nano_seconds);
         }
     }
 
@@ -75,7 +77,7 @@ ruleset objects_detection
         // Now that all obstacle messages have been collected, we can send them.
         danger_zone_t::get_instance()->send_obstacle_array_message(
             obstacles,
-            detection.frame_id, detection.seconds, detection.nseconds);
+            detection.frame_id, detection.seconds, detection.nano_seconds);
     }
 }
 
@@ -110,6 +112,8 @@ ruleset zone_transition : serial_group()
                 && event.to_zone_id != zones_t::c_no_zone)
             {
                 send_trigger_log_action.insert(
+                    seconds: event.seconds,
+                    nano_seconds: event.nano_seconds,
                     seconds_past: c_log_seconds_past,
                     seconds_forward: c_log_seconds_forward);
             }
@@ -117,6 +121,8 @@ ruleset zone_transition : serial_group()
         else if (event.to_zone_id == zones_t::c_red_zone)
         {
             send_trigger_log_action.insert(
+                seconds: event.seconds,
+                nano_seconds: event.nano_seconds,
                 seconds_past: c_log_seconds_past,
                 seconds_forward: c_log_seconds_forward);
         }
@@ -126,13 +132,14 @@ ruleset zone_transition : serial_group()
     }
 }
 
-
 ruleset snapshotter
 {
     on_insert(action:send_trigger_log_action)
     {
         danger_zone_t::get_instance()->trigger_log(
-            action.seconds_past, action.seconds_forward, log_file_base_name, topics);
+            action.seconds, action.nano_seconds,
+            action.seconds_past, action.seconds_forward,
+            log_file_base_name, topics);
 
         action.remove();
     }

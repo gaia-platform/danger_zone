@@ -27,7 +27,7 @@ table detection (
 
     -- Seconds/nanoseconds of detection frame.
     seconds int32,
-    nseconds int32,
+    nano_seconds int32,
 
     processed bool
 )
@@ -59,6 +59,10 @@ table d_object (
     orient_z float,
     orient_w float,
 
+    -- Detection time, stored redundantly because we cannot easily retrieve the detection for a d_object.
+    seconds int32,
+    nano_seconds int32,
+
     -- Zone, numeric values gets 0 as default value,
     -- which corresponds to zones_t::c_no_zone.
     zone_id uint8,
@@ -73,7 +77,11 @@ table d_object (
 table zone_transition_event (
     object_id string,
     from_zone_id uint8,
-    to_zone_id uint8
+    to_zone_id uint8,
+
+    -- Detection time.
+    seconds int32,
+    nano_seconds int32
 )
 
 --
@@ -91,8 +99,9 @@ table zone_transition_event (
 -- the external world and that are triggered by specific "action" records.
 --
 
-
 table send_trigger_log_action (
-    seconds_past uint32,
-    seconds_forward uint32
+    seconds int32,
+    nano_seconds int32,
+    seconds_past int32,
+    seconds_forward int32
 )
