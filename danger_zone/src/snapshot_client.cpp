@@ -3,13 +3,7 @@
 // All rights reserved.
 /////////////////////////////////////////////
 
-
 #include "snapshot_client.hpp"
-
-template <typename... Args>
-inline void unused(Args&&...)
-{
-}
 
 SnapshotClient::SnapshotClient()
 {

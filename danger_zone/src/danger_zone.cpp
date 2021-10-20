@@ -118,7 +118,7 @@ public:
         // TODO: make this modern.
         danger_zone_ptr = static_cast<danger_zone_t*>(this);
 
-        m_detection3d_subscription = this->create_subscription<vision_msgs::msg::Detection3DArray>(
+        this->create_subscription<vision_msgs::msg::Detection3DArray>(
             m_detected_topic_name, 10, std::bind(&subscriber_node_t::detection3d_callback, this, _1));
 
         m_obstacles_pub = this->create_publisher<danger_zone_msgs::msg::ObstacleArray>(
@@ -216,7 +216,6 @@ private:
     // Name found in snapshotter.cpp.
     const std::string m_snapshot_service_name = "trigger_snapshot";
 
-    rclcpp::Subscription<vision_msgs::msg::Detection3DArray>::SharedPtr m_detection3d_subscription;
     rclcpp::Publisher<danger_zone_msgs::msg::ObstacleArray>::SharedPtr m_obstacles_pub;
     std::shared_ptr<SnapshotClient> m_snapshot_client;
 };
