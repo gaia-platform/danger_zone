@@ -27,7 +27,7 @@ table detection (
 
     -- Seconds/nanoseconds of detection frame.
     seconds int32,
-    nano_seconds int32,
+    nano_seconds uint32,
 
     processed bool
 )
@@ -61,7 +61,7 @@ table d_object (
 
     -- Detection time, stored redundantly because we cannot easily retrieve the detection for a d_object.
     seconds int32,
-    nano_seconds int32,
+    nano_seconds uint32,
 
     -- Zone, numeric values gets 0 as default value,
     -- which corresponds to zones_t::c_no_zone.
@@ -81,7 +81,7 @@ table zone_transition_event (
 
     -- Detection time.
     seconds int32,
-    nano_seconds int32
+    nano_seconds uint32
 )
 
 --
@@ -101,7 +101,7 @@ table zone_transition_event (
 
 table send_trigger_log_action (
     seconds int32,
-    nano_seconds int32,
+    nano_seconds uint32,
     seconds_past int32,
     seconds_forward int32
 )

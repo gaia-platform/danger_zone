@@ -46,7 +46,7 @@ struct danger_zone_obstacles_t : public obstacles_t
 
     static danger_zone_msgs::msg::ObstacleArray::UniquePtr build_obstacle_array_message(
         std::vector<danger_zone_msgs::msg::Obstacle> obstacles,
-        std::string frame_id, int32_t seconds, int32_t nano_seconds)
+        std::string frame_id, int32_t seconds, uint32_t nano_seconds)
     {
         danger_zone_msgs::msg::ObstacleArray::UniquePtr obstacle_array(new danger_zone_msgs::msg::ObstacleArray);
 
@@ -132,7 +132,7 @@ public:
 
     void send_obstacle_array_message(
         std::shared_ptr<obstacles_t> obstacles,
-        std::string frame_id, int32_t seconds, int32_t nano_seconds) override
+        std::string frame_id, int32_t seconds, uint32_t nano_seconds) override
     {
         std::shared_ptr<danger_zone_obstacles_t> danger_zone_obstacles
             = std::dynamic_pointer_cast<danger_zone_obstacles_t>(obstacles);
@@ -142,7 +142,7 @@ public:
     }
 
     void trigger_log(
-        int32_t base_seconds, int32_t base_nano_seconds,
+        int32_t base_seconds, uint32_t base_nano_seconds,
         int32_t seconds_past, int32_t seconds_forward,
         std::string file_name, std::vector<std::string> topics) override
     {

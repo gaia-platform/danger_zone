@@ -92,19 +92,21 @@ public:
      * @param[in] std::shared_ptr<obstacles_t> : obstacles : the collection of obstacles messages
      * @param[in] std::string : frame_id : the ROS frame name
      * @param[in] int32_t : seconds : the time in seconds
-     * @param[in] int32_t : nano_seconds : the number of nanoseconds since sec
+     * @param[in] uint32_t : nano_seconds : the number of nanoseconds since sec
      * @return void
      * @throws
      * @exceptsafe yes
      */
     virtual void send_obstacle_array_message(
         std::shared_ptr<obstacles_t> obstacles,
-        std::string frame_id, int32_t seconds, int32_t nano_seconds)
+        std::string frame_id, int32_t seconds, uint32_t nano_seconds)
         = 0;
 
     /**
      * Call this from within a rule to trigger a log event.
      *
+     * @param[in] int32_t base_seconds
+     * @param[in] uint32_t base_nano_seconds
      * @param[in] int32_t seconds_past
      * @param[in] int32_t seconds_forward
      * @param[in] std::string file_name
@@ -114,7 +116,7 @@ public:
      * @exceptsafe yes
      */
     virtual void trigger_log(
-        int32_t base_seconds, int32_t base_nano_seconds,
+        int32_t base_seconds, uint32_t base_nano_seconds,
         int32_t seconds_past, int32_t seconds_forward,
         std::string file_name, std::vector<std::string>topics) = 0;
 
