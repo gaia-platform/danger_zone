@@ -91,46 +91,33 @@ public:
      *
      * @param[in] std::shared_ptr<obstacles_t> : obstacles : the collection of obstacles messages
      * @param[in] std::string : frame_id : the ROS frame name
-     * @param[in] int32_t : sec : the time in seconds
-     * @param[in] uint32_t : nsec : the number of nanoseconds since sec
+     * @param[in] int32_t : seconds : the time in seconds
+     * @param[in] uint32_t : nano_seconds : the number of nanoseconds since sec
      * @return void
      * @throws
      * @exceptsafe yes
      */
     virtual void send_obstacle_array_message(
         std::shared_ptr<obstacles_t> obstacles,
-        std::string frame_id, int32_t sec, uint32_t nsec)
+        std::string frame_id, int32_t seconds, uint32_t nano_seconds)
         = 0;
 
     /**
-     * Call this from within a ruleset rule to trigger a log event.
+     * Call this from within a rule to trigger a log event.
      *
-     * @param[in] int start_sec
-     * @param[in] uint32_t start_nsec
-     * @param[in] int end_sec
-     * @param[in] uint32_t end_nsec
+     * @param[in] int32_t base_seconds
+     * @param[in] uint32_t base_nano_seconds
+     * @param[in] int32_t seconds_past
+     * @param[in] int32_t seconds_forward
      * @param[in] std::string file_name
      * @param[in] std::vector<std::string>topics
      * @return void
      * @throws
      * @exceptsafe yes
      */
-    virtual void trigger_log(int start_sec, uint32_t start_nsec,
-        int end_sec, uint32_t end_nsec, std::string file_name,
-        std::vector<std::string>topics) = 0;
-
-    /**
-     * Call this from within a ruleset rule to trigger a log event.
-     *
-     * @param[in] int seconds_past
-     * @param[in] int seconds_forward
-     * @param[in] std::string file_name
-     * @param[in] std::vector<std::string>topics
-     * @return void
-     * @throws
-     * @exceptsafe yes
-     */
-    virtual void trigger_log(int seconds_past, int seconds_forward,
+    virtual void trigger_log(
+        int32_t base_seconds, uint32_t base_nano_seconds,
+        int32_t seconds_past, int32_t seconds_forward,
         std::string file_name, std::vector<std::string>topics) = 0;
 
     /**
