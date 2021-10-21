@@ -87,16 +87,13 @@ table d_object (
 )
 
 -- This table tracks the state of our logging requests.
--- If last_log < end_log, we are logging.
--- If last_log >= end_log, we are not logging.
+-- It tracks the begin and end of the time interval that we need to log.
+-- If begin_log < end_log, we are logging.
+-- If begin_log >= end_log, we are not logging.
 table logging_state (
-    -- Indicates the last time we performed logging.
-    -- There is no need to log anything before this time.
-    last_log_seconds int32,
-    last_log_nanoseconds uint32,
+    begin_log_seconds int32,
+    begin_log_nanoseconds uint32,
 
-    -- Indicates when we should end our logging requests.
-    -- Data between last_log and end_log still needs to be logged.
     end_log_seconds int32,
     end_log_nanoseconds uint32
 )

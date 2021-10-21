@@ -133,43 +133,43 @@ void check_logging(
 
     // If we're not in the process of logging, there we're done.
     if (!is_earlier(
-        logging_state.last_log_seconds(), logging_state.last_log_nanoseconds(),
+        logging_state.begin_log_seconds(), logging_state.begin_log_nanoseconds(),
         logging_state.end_log_seconds(), logging_state.end_log_nanoseconds()))
     {
         return;
     }
 
-    // Calculate the end of the next logging window.
-    int32_t next_log_seconds = logging_state.last_log_seconds() + logging_window_seconds;
-    uint32_t next_log_nanoseconds = logging_state.last_log_nanoseconds();
+    // Calculate the begin of the next logging window.
+    int32_t next_begin_log_seconds = logging_state.begin_log_seconds() + logging_window_seconds;
+    uint32_t next_begin_log_nanoseconds = logging_state.begin_log_nanoseconds();
 
     // If the logging should end up earlier than the next window,
     // then use the time when logging should end.
     if (is_earlier(logging_state.end_log_seconds(), logging_state.end_log_nanoseconds(),
-        next_log_seconds, next_log_nanoseconds))
+        next_begin_log_seconds, next_begin_log_nanoseconds))
     {
-        next_log_seconds = logging_state.end_log_seconds();
-        next_log_nanoseconds = logging_state.end_log_nanoseconds();
+        next_begin_log_seconds = logging_state.end_log_seconds();
+        next_begin_log_nanoseconds = logging_state.end_log_nanoseconds();
     }
 
     // If it's not time to log, exit.
     if (is_earlier(current_seconds, current_nanoseconds,
-        next_log_seconds, next_log_nanoseconds))
+        next_begin_log_seconds, next_begin_log_nanoseconds))
     {
         return;
     }
 
     // We can now issue a logging request.
     send_trigger_log_action_t::insert_row(
-        logging_state.last_log_seconds(), logging_state.last_log_nanoseconds(),
-        next_log_seconds, next_log_nanoseconds);
+        logging_state.begin_log_seconds(), logging_state.begin_log_nanoseconds(),
+        next_begin_log_seconds, next_begin_log_nanoseconds);
 
     // Update the logging state as well.
     // Our database operations are transactional,
     // so if this update fails, our logging request will fail as well.
     auto logging_state_w = logging_state.writer();
-    logging_state_w.last_log_seconds = next_log_seconds;
-    logging_state_w.last_log_nanoseconds = next_log_nanoseconds;
+    logging_state_w.begin_log_seconds = next_begin_log_seconds;
+    logging_state_w.begin_log_nanoseconds = next_begin_log_nanoseconds;
     logging_state_w.update_row();
 }
 
@@ -189,12 +189,12 @@ void update_logging(
 
     // If we're not in the process of logging, then set logging state fully.
     if (!is_earlier(
-        logging_state.last_log_seconds(), logging_state.last_log_nanoseconds(),
+        logging_state.begin_log_seconds(), logging_state.begin_log_nanoseconds(),
         logging_state.end_log_seconds(), logging_state.end_log_nanoseconds()))
     {
         auto logging_state_w = logging_state.writer();
-        logging_state_w.last_log_seconds = event_seconds - seconds_past;
-        logging_state_w.last_log_nanoseconds = event_nanoseconds;
+        logging_state_w.begin_log_seconds = event_seconds - seconds_past;
+        logging_state_w.begin_log_nanoseconds = event_nanoseconds;
         logging_state_w.end_log_seconds = event_seconds + seconds_forward;
         logging_state_w.end_log_nanoseconds = event_nanoseconds;
         logging_state_w.update_row();
@@ -254,10 +254,10 @@ void dump_d_object(const d_object_t& d_object)
 
 void dump_logging_state(const logging_state_t& logging_state)
 {
-    printf("logging state last log seconds:     %d\n", logging_state.last_log_seconds());
-    printf("logging state last log nanoseconds: %d\n", logging_state.last_log_nanoseconds());
-    printf("logging state end log seconds:      %d\n", logging_state.end_log_seconds());
-    printf("logging state end log nanoseconds:  %d\n", logging_state.end_log_nanoseconds());
+    printf("logging state begin log seconds:        %d\n", logging_state.begin_log_seconds());
+    printf("logging state begin log nanoseconds:    %d\n", logging_state.begin_log_nanoseconds());
+    printf("logging state end log seconds:          %d\n", logging_state.end_log_seconds());
+    printf("logging state end log nanoseconds:      %d\n", logging_state.end_log_nanoseconds());
 }
 
 void dump_zone_transition_event(const zone_transition_event_t& zone_transition_event)
