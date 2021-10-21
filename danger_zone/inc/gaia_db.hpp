@@ -33,7 +33,7 @@ void check_logging(
 // This method can be called to schedule a new logging interval
 // when a logging trigger is encountered.
 void update_logging(
-    int32_t current_seconds, uint32_t current_nanoseconds,
+    int32_t event_seconds, uint32_t event_nanoseconds,
     int32_t seconds_past, int32_t seconds_forward);
 
 // Remove all the objects from the database.

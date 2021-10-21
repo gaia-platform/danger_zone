@@ -129,7 +129,7 @@ public:
 
     // danger_zone_t interface implementation.
 
-    void get_current_time(int32_t& seconds, uint32_t& nanoseconds)
+    void get_current_time(int32_t& seconds, uint32_t& nanoseconds) override
     {
         auto current_time = get_clock()->now();
         seconds = current_time.seconds();
@@ -148,16 +148,14 @@ public:
     }
 
     void trigger_log(
-        int32_t base_seconds, uint32_t base_nanoseconds,
-        int32_t seconds_past, int32_t seconds_forward,
+        int32_t begin_seconds, uint32_t begin_nanoseconds,
+        int32_t end_seconds, uint32_t end_nanoseconds,
         std::string file_name,
         std::vector<std::string> topic_names, std::vector<std::string> topic_types) override
     {
-        int32_t start_seconds = base_seconds - seconds_past;
-        int32_t end_seconds = base_seconds + seconds_forward;
         m_snapshot_client->send_request(
-            start_seconds, base_nanoseconds,
-            end_seconds, base_nanoseconds,
+            begin_seconds, begin_nanoseconds,
+            end_seconds, end_nanoseconds,
             file_name,
             topic_names, topic_types);
     }

@@ -131,8 +131,8 @@ table zone_transition_event (
 --
 
 table send_trigger_log_action (
-    seconds int32,
-    nanoseconds uint32,
-    seconds_past int32,
-    seconds_forward int32
+    begin_seconds int32,
+    begin_nanoseconds uint32,
+    end_seconds int32,
+    end_nanoseconds uint32
 )

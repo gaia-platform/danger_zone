@@ -95,7 +95,7 @@ public:
      * @throws
      * @exceptsafe yes
      */
-    void get_current_time(int32_t& seconds, uint32_t& nanoseconds);
+    virtual void get_current_time(int32_t& seconds, uint32_t& nanoseconds) = 0;
 
     /**
      * Call this from within a Gaia rule to send a ROS2 obstacleArray message.
@@ -110,16 +110,15 @@ public:
      */
     virtual void send_obstacle_array_message(
         std::shared_ptr<obstacles_t> obstacles,
-        std::string frame_id, int32_t seconds, uint32_t nanoseconds)
-        = 0;
+        std::string frame_id, int32_t seconds, uint32_t nanoseconds) = 0;
 
     /**
      * Call this from within a rule to trigger a log event.
      *
-     * @param[in] int32_t base_seconds
-     * @param[in] uint32_t base_nanoseconds
-     * @param[in] int32_t seconds_past
-     * @param[in] int32_t seconds_forward
+     * @param[in] int32_t begin_seconds
+     * @param[in] uint32_t begin_nanoseconds
+     * @param[in] int32_t end_seconds
+     * @param[in] uint32_t end_nanoseconds
      * @param[in] std::string file_name
      * @param[in] std::vector<std::string>topics
      * @return void
@@ -127,8 +126,8 @@ public:
      * @exceptsafe yes
      */
     virtual void trigger_log(
-        int32_t base_seconds, uint32_t base_nanoseconds,
-        int32_t seconds_past, int32_t seconds_forward,
+        int32_t begin_seconds, uint32_t begin_nanoseconds,
+        int32_t end_seconds, uint32_t end_nanoseconds,
         std::string file_name,
         std::vector<std::string>topic_names, std::vector<std::string>topic_types) = 0;
 
