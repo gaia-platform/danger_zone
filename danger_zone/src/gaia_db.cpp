@@ -125,7 +125,7 @@ void check_logging(
 
     if (logging_state_it.begin() == logging_state_it.end())
     {
-        gaia_log::app().info("Logging state record is missing! Cannot perform logging!");
+        gaia_log::app().warn("Logging state record is missing! Cannot perform logging!");
         return;
     }
 
@@ -181,7 +181,7 @@ void update_logging(
 
     if (logging_state_it.begin() == logging_state_it.end())
     {
-        gaia_log::app().info("Logging state record is missing! Cannot perform logging!");
+        gaia_log::app().warn("Logging state record is missing! Cannot perform logging!");
         return;
     }
 
