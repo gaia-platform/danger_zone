@@ -25,6 +25,11 @@ gaia::danger_zone::object_class_t get_object_class(const char* class_id);
 // If the object does not exist, create it.
 gaia::danger_zone::object_t get_object(const char* object_id, const char* class_id);
 
+// Tells whether the first time data precedes the second time data.
+bool is_earlier(
+    int32_t first_seconds, uint32_t first_nanoseconds,
+    int32_t second_seconds, uint32_t second_nanoseconds);
+
 // This method can be called periodically to detemine
 // whether a logging request should be issued for a new logging window.
 void check_and_log(
