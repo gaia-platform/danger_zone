@@ -13,6 +13,9 @@
 class zones_t
 {
 public:
+    // Note the constants numbering is relevant (see: is_object_moving_away()).
+    // and the no_zone must be 0 because that is the default value that the
+    // database assigns to numeric values.
     static constexpr uint8_t c_no_zone = 0;
     static constexpr uint8_t c_red_zone = 1;
     static constexpr uint8_t c_yellow_zone = 2;
@@ -28,6 +31,11 @@ public:
      * Return the direction_id based on the distance from the given coordinates.
      */
     static uint8_t get_direction_zone_id(double z, double x);
+
+    /**
+     * Tells if an object moving from a zone to another is getting closer or further.
+     */
+    static bool is_object_moving_away(uint8_t from_zone_id, uint8_t to_zone_id);
 
     /**
      * In the app we use 0 to denote no_zone because Gaia DB assign 0
@@ -47,8 +55,8 @@ private:
 
     static constexpr int c_index_radius = 0;
     static constexpr int c_index_zone = 1;
-    static constexpr double c_red_zone_radius = 10.0;
-    static constexpr double c_yellow_zone_radius = 20.0;
+    static constexpr double c_red_zone_radius = 15.0;
+    static constexpr double c_yellow_zone_radius = 30.0;
     static constexpr double c_green_zone_radius = 2000.0;
 
     static constexpr double c_range_id[3][2] = {

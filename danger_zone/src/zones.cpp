@@ -73,3 +73,13 @@ std::string zones_t::zone_id_str(uint8_t zone_id)
 
     throw std::runtime_error("Invalid zone_id: " + std::to_string(zone_id));
 }
+
+bool zones_t::is_object_moving_away(uint8_t from_zone_id, uint8_t to_zone_id)
+{
+    if (from_zone_id == c_no_zone)
+    {
+        return false;
+    }
+
+    return to_zone_id > from_zone_id;
+}

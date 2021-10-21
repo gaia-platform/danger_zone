@@ -7,7 +7,6 @@
 
 #include <functional>
 #include <memory>
-#include <mutex>
 
 #include <danger_zone_msgs/msg/obstacle_array.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -214,6 +213,7 @@ private:
     // Name found in snapshotter.cpp.
     const std::string m_snapshot_service_name = "trigger_snapshot";
 
+    [[maybe_unused]]
     rclcpp::Subscription<vision_msgs::msg::Detection3DArray>::SharedPtr m_detection3d_subscription;
     rclcpp::Publisher<danger_zone_msgs::msg::ObstacleArray>::SharedPtr m_obstacles_pub;
     std::shared_ptr<SnapshotClient> m_snapshot_client;
@@ -225,7 +225,11 @@ int main(int argc, char* argv[])
 
     gaia::db::begin_transaction();
     clean_db();
+    gaia::db::commit_transaction();
+
+    gaia::db::begin_transaction();
     initialize_zones();
+    initialize_object_classes();
     gaia::db::commit_transaction();
 
     rclcpp::init(argc, argv);
