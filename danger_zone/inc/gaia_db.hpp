@@ -27,7 +27,7 @@ gaia::danger_zone::object_t get_object(const char* object_id, const char* class_
 
 // This method can be called periodically to detemine
 // whether a logging request should be issued for a new logging window.
-void check_logging(
+void check_and_log(
     int32_t current_seconds, uint32_t current_nanoseconds, int32_t logging_window_seconds);
 
 // This method can be called to schedule a new logging interval

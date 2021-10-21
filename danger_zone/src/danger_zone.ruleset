@@ -47,7 +47,7 @@ ruleset objects_detection
         int32_t current_seconds = 0;
         uint32_t current_nanoseconds = 0;
         danger_zone_t::get_instance()->get_current_time(current_seconds, current_nanoseconds);
-        check_logging(current_seconds, current_nanoseconds, c_log_window_seconds);
+        check_and_log(current_seconds, current_nanoseconds, c_log_window_seconds);
     }
 
     on_update(d_object.zone_id)

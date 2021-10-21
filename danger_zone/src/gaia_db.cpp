@@ -118,7 +118,7 @@ bool is_earlier(
         ? true : false;
 }
 
-void check_logging(
+void check_and_log(
     int32_t current_seconds, uint32_t current_nanoseconds, int32_t logging_window_seconds)
 {
     auto logging_state_it = logging_state_t::list();
