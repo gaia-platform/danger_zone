@@ -13,6 +13,9 @@
 class zones_t
 {
 public:
+    // Note the constants numbering is relevant (see: is_object_moving_away()).
+    // and the no_zone must be 0 because that is the default value that the
+    // database assigns to numeric values.
     static constexpr uint8_t c_no_zone = 0;
     static constexpr uint8_t c_red_zone = 1;
     static constexpr uint8_t c_yellow_zone = 2;
