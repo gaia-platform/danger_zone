@@ -213,8 +213,7 @@ private:
     // Name found in snapshotter.cpp.
     const std::string m_snapshot_service_name = "trigger_snapshot";
 
-    [[maybe_unused]]
-    rclcpp::Subscription<vision_msgs::msg::Detection3DArray>::SharedPtr m_detection3d_subscription;
+    [[maybe_unused]] rclcpp::Subscription<vision_msgs::msg::Detection3DArray>::SharedPtr m_detection3d_subscription;
     rclcpp::Publisher<danger_zone_msgs::msg::ObstacleArray>::SharedPtr m_obstacles_pub;
     std::shared_ptr<SnapshotClient> m_snapshot_client;
 };
@@ -235,5 +234,6 @@ int main(int argc, char* argv[])
     rclcpp::init(argc, argv);
     rclcpp::spin(std::make_shared<subscriber_node_t>());
     rclcpp::shutdown();
+    gaia::system::shutdown();
     return 0;
 }

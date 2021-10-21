@@ -18,7 +18,7 @@ std::vector<std::string> topic_names{"/image", "/scan"};
 std::vector<std::string> topic_types{"sensor_msgs/Image", "sensor_msgs/LaserScan"};
 
 // Set this to an existing directory + desired log name.
-std::string log_file_base_name = "~/logs/retrolog";
+std::string log_file_base_name = "ros-topics-logs/retrolog";
 
 const int32_t c_log_seconds_past = 5;
 const int32_t c_log_seconds_forward = 25;
