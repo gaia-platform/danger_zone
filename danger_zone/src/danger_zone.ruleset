@@ -33,6 +33,13 @@ ruleset objects_detection
     // Handle the insertion of a detection record.
     // We will determine and set the zones of all detected objects
     // and then we will mark the detection record as having been processed.
+    //
+    // Triggered by:
+    //   processing of detection messages in subscriber_node_t::detection3d_callback().
+    //
+    // Triggers:
+    //   on_update(d_object.zone_id)
+    //   on_update(detection.processed)
     //////////////////////////////////////////////////////////////////////////////////////////////
     on_insert(detection)
     {
@@ -50,6 +57,12 @@ ruleset objects_detection
     // Use the insertion of a detection to evaluate
     // whether it's time to perform the logging of another window of events.
     // We use a different rule with the same trigger because the actions are unrelated.
+    //
+    // Triggered by:
+    //   processing of detection messages in subscriber_node_t::detection3d_callback().
+    //
+    // Triggers:
+    //   on_insert(send_trigger_log_action)
     //////////////////////////////////////////////////////////////////////////////////////////////
     on_insert(detection)
     {
@@ -68,6 +81,12 @@ ruleset objects_detection
     //////////////////////////////////////////////////////////////////////////////////////////////
     // When the zone of a detected object is updated,
     // we check to see if the object has transitioned in a different zone.
+    //
+    // Triggered by:
+    //   on_insert(detection) (first rule)
+    //
+    // Triggers:
+    //   on_insert(zone_transition_event)
     //////////////////////////////////////////////////////////////////////////////////////////////
     on_update(d_object.zone_id)
     {
@@ -91,6 +110,12 @@ ruleset objects_detection
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Create an array of messages for a processed detection,
     // so we can communicate the zones of each detected object to the simulator.
+    //
+    // Triggered by:
+    //   on_insert(detection) (first rule)
+    //
+    // Triggers:
+    //   no other rules.
     //////////////////////////////////////////////////////////////////////////////////////////////
     on_update(detection.processed)
     {
@@ -127,6 +152,12 @@ ruleset zone_transition : serial_group()
 {
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Evaluate whether a zone transition should trigger data logging.
+    //
+    // Triggered by:
+    //   on_update(d_object.zone_id)
+    //
+    // Triggers:
+    //   no other rules.
     //////////////////////////////////////////////////////////////////////////////////////////////
     on_insert(event:zone_transition_event)
     {
@@ -169,6 +200,12 @@ ruleset snapshotter
     // Process a data logging request.
     // This is done on a dedicated rule, to ensure that such requests
     // do not get retried due to a database update conflict.
+    //
+    // Triggered by:
+    //   on_insert(detection) (second rule)
+    //
+    // Triggers:
+    //   no other rules.
     //////////////////////////////////////////////////////////////////////////////////////////////
     on_insert(action:send_trigger_log_action)
     {
