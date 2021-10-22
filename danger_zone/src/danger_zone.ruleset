@@ -29,6 +29,11 @@ using namespace gaia::danger_zone;
 
 ruleset objects_detection
 {
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // Handle the insertion of a detection record.
+    // We will determine and set the zones of all detected objects
+    // and then we will mark the detection record as having been processed.
+    //////////////////////////////////////////////////////////////////////////////////////////////
     on_insert(detection)
     {
         for (detection->obj:d_object)
@@ -39,21 +44,31 @@ ruleset objects_detection
         }
 
         detection.processed = true;
+    }
 
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // Use the insertion of a detection to evaluate
+    // whether it's time to perform the logging of another window of events.
+    // We use a different rule with the same trigger because the actions are unrelated.
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    on_insert(detection)
+    {
         // Use this opportunity to check if we need to issue a new logging request
         // for a time window in the past.
         // A logging request is capped to c_log_window_seconds at a time.
-        // If a succession of events requires logging more than c_log_window_seconds.
+        // If a succession of events requires logging more than c_log_window_seconds,
         // we will just issue multiple requests, after each time window elapses.
-        int32_t current_seconds = detection.seconds;
-        uint32_t current_nanoseconds = detection.nanoseconds;
+        //
         // Time of detections is not using standard format,
         // so instead of using the current system time,
         // we'll use the time of the last detection as "current time".
-        // danger_zone_t::get_instance()->get_current_time(current_seconds, current_nanoseconds);
-        check_and_log(current_seconds, current_nanoseconds, c_log_window_seconds);
+        check_and_log(detection.seconds, detection.nanoseconds, c_log_window_seconds);
     }
 
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // When the zone of a detected object is updated,
+    // we check to see if the object has transitioned in a different zone.
+    //////////////////////////////////////////////////////////////////////////////////////////////
     on_update(d_object.zone_id)
     {
         // Find the object corresponding to the detection.
@@ -73,6 +88,10 @@ ruleset objects_detection
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // Create an array of messages for a processed detection,
+    // so we can communicate the zones of each detected object to the simulator.
+    //////////////////////////////////////////////////////////////////////////////////////////////
     on_update(detection.processed)
     {
         std::shared_ptr<obstacles_t> obstacles = obstacles_t::new_instance();
@@ -106,6 +125,9 @@ ruleset objects_detection
  */
 ruleset zone_transition : serial_group()
 {
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // Evaluate whether a zone transition should trigger data logging.
+    //////////////////////////////////////////////////////////////////////////////////////////////
     on_insert(event:zone_transition_event)
     {
         auto obj = object_t::list()
@@ -143,6 +165,11 @@ ruleset zone_transition : serial_group()
 
 ruleset snapshotter
 {
+    //////////////////////////////////////////////////////////////////////////////////////////////
+    // Process a data logging request.
+    // This is done on a dedicated rule, to ensure that such requests
+    // do not get retried due to a database update conflict.
+    //////////////////////////////////////////////////////////////////////////////////////////////
     on_insert(action:send_trigger_log_action)
     {
         danger_zone_t::get_instance()->trigger_log(
