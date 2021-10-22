@@ -29,18 +29,18 @@ using namespace gaia::danger_zone;
 
 ruleset objects_detection
 {
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    // Handle the insertion of a detection record.
-    // We will determine and set the zones of all detected objects
-    // and then we will mark the detection record as having been processed.
-    //
-    // Triggered by:
-    //   processing of detection messages in subscriber_node_t::detection3d_callback().
-    //
-    // Triggers:
-    //   on_update(d_object.zone_id)
-    //   on_update(detection.processed)
-    //////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /// Handle the insertion of a detection record.
+    /// Determine and set the zones of all detected objects
+    /// and then mark the detection record as having been processed.
+    ///
+    /// Triggered by:
+    ///   processing of detection messages in subscriber_node_t::detection3d_callback().
+    ///
+    /// Triggers:
+    ///   on_update(d_object.zone_id)
+    ///   on_update(detection.processed)
+    ///////////////////////////////////////////////////////////////////////////////////////////////
     on_insert(detection)
     {
         for (detection->obj:d_object)
@@ -53,17 +53,17 @@ ruleset objects_detection
         detection.processed = true;
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    // Use the insertion of a detection to evaluate
-    // whether it's time to perform the logging of another window of events.
-    // We use a different rule with the same trigger because the actions are unrelated.
-    //
-    // Triggered by:
-    //   processing of detection messages in subscriber_node_t::detection3d_callback().
-    //
-    // Triggers:
-    //   on_insert(send_trigger_log_action)
-    //////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /// Use the insertion of a detection to evaluate
+    /// whether it's time to perform the logging of another window of events.
+    /// A different rule with the same trigger is used to process unrelated actions.
+    ///
+    /// Triggered by:
+    ///   processing of detection messages in subscriber_node_t::detection3d_callback().
+    ///
+    /// Triggers:
+    ///   on_insert(send_trigger_log_action)
+    ///////////////////////////////////////////////////////////////////////////////////////////////
     on_insert(detection)
     {
         // Use this opportunity to check if we need to issue a new logging request
@@ -78,16 +78,16 @@ ruleset objects_detection
         check_and_log(detection.seconds, detection.nanoseconds, c_log_window_seconds);
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    // When the zone of a detected object is updated,
-    // we check to see if the object has transitioned in a different zone.
-    //
-    // Triggered by:
-    //   on_insert(detection) (first rule)
-    //
-    // Triggers:
-    //   on_insert(zone_transition_event)
-    //////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /// When the zone of a detected object is updated,
+    /// check if the object has transitioned into a different zone.
+    ///
+    /// Triggered by:
+    ///   on_insert(detection) (first rule)
+    ///
+    /// Triggers:
+    ///   on_insert(zone_transition_event)
+    ///////////////////////////////////////////////////////////////////////////////////////////////
     on_update(d_object.zone_id)
     {
         // Find the object corresponding to the detection.
@@ -107,16 +107,16 @@ ruleset objects_detection
         }
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    // Create an array of messages for a processed detection,
-    // so we can communicate the zones of each detected object to the simulator.
-    //
-    // Triggered by:
-    //   on_insert(detection) (first rule)
-    //
-    // Triggers:
-    //   no other rules.
-    //////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /// Create an array of messages for a processed detection
+    /// and communicate the zones of each detected object back to the simulator.
+    ///
+    /// Triggered by:
+    ///   on_insert(detection) (first rule)
+    ///
+    /// Triggers:
+    ///   no other rules.
+    ///////////////////////////////////////////////////////////////////////////////////////////////
     on_update(detection.processed)
     {
         std::shared_ptr<obstacles_t> obstacles = obstacles_t::new_instance();
@@ -150,15 +150,15 @@ ruleset objects_detection
  */
 ruleset zone_transition : serial_group()
 {
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    // Evaluate whether a zone transition should trigger data logging.
-    //
-    // Triggered by:
-    //   on_update(d_object.zone_id)
-    //
-    // Triggers:
-    //   no other rules.
-    //////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /// Evaluate whether a zone transition should trigger data logging.
+    ///
+    /// Triggered by:
+    ///   on_update(d_object.zone_id)
+    ///
+    /// Triggers:
+    ///   no other rules.
+    ///////////////////////////////////////////////////////////////////////////////////////////////
     on_insert(event:zone_transition_event)
     {
         auto obj = object_t::list()
@@ -196,17 +196,17 @@ ruleset zone_transition : serial_group()
 
 ruleset snapshotter
 {
-    //////////////////////////////////////////////////////////////////////////////////////////////
-    // Process a data logging request.
-    // This is done on a dedicated rule, to ensure that such requests
-    // do not get retried due to a database update conflict.
-    //
-    // Triggered by:
-    //   on_insert(detection) (second rule)
-    //
-    // Triggers:
-    //   no other rules.
-    //////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    /// Process a data logging request.
+    /// This is performed using a dedicated rule, to ensure that such requests
+    /// do not get retried due to a database update conflict.
+    ///
+    /// Triggered by:
+    ///   on_insert(detection) (second rule)
+    ///
+    /// Triggers:
+    ///   no other rules.
+    ///////////////////////////////////////////////////////////////////////////////////////////////
     on_insert(action:send_trigger_log_action)
     {
         danger_zone_t::get_instance()->trigger_log(
