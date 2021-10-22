@@ -21,7 +21,7 @@ void initialize_zones()
 
         if (zone_it.begin() == zone_it.end())
         {
-            gaia_log::app().info("Creating {} zone with id: {}.", zones_t::zone_id_str(zone_id), zone_id);
+            gaia_log::app().info("Creating {} zone with id: {}...", zones_t::zone_id_str(zone_id), zone_id);
             zone_t::insert_row(zone_id);
         }
     }
@@ -41,7 +41,9 @@ void initialize_object_classes()
 
         if (obj_class_it.begin() == obj_class_it.end())
         {
-            gaia_log::app().info("Creating object class: {}, begin logging zone: {}.", pair.first, zones_t::zone_id_str(pair.second));
+            gaia_log::app().info(
+                "Creating object class: {}, begin logging zone: {}...",
+                pair.first, zones_t::zone_id_str(pair.second));
             object_class_t::insert_row(pair.first.c_str(), pair.second);
         }
     }
@@ -54,10 +56,12 @@ void initialize_logging_state()
     // If we already have a record, delete it.
     if (logging_state_it.begin() != logging_state_it.end())
     {
+        gaia_log::app().warn("Found an unexpected logging state record! Deleting that record...");
         logging_state_it.begin()->delete_row();
     }
 
     // Reinsert a default state record.
+    gaia_log::app().info("Creating new logging state record...");
     logging_state_t::insert_row(0, 0, 0, 0);
 }
 
@@ -70,7 +74,9 @@ gaia::danger_zone::object_class_t get_object_class(const char* class_id)
 
     if (obj_class_it.begin() == obj_class_it.end())
     {
-        gaia_log::app().info("Found new object class: {}, begin logging zone: {}.", class_id, zones_t::zone_id_str(zones_t::c_red_zone));
+        gaia_log::app().info(
+            "Found new object class: {}; its begin logging zone will be set to: {}.",
+            class_id, zones_t::zone_id_str(zones_t::c_red_zone));
 
         obj_class = object_class_t::get(
             object_class_t::insert_row(class_id, zones_t::c_red_zone));
@@ -160,6 +166,10 @@ void check_and_log(
     }
 
     // We can now issue a logging request.
+    gaia_log::app().info(
+        "Triggering a log request for interval: ({}, {}) - ({}, {})...",
+        logging_state.begin_log_seconds(), logging_state.begin_log_nanoseconds(),
+        next_begin_log_seconds, next_begin_log_nanoseconds);
     send_trigger_log_action_t::insert_row(
         logging_state.begin_log_seconds(), logging_state.begin_log_nanoseconds(),
         next_begin_log_seconds, next_begin_log_nanoseconds);
@@ -192,6 +202,10 @@ void update_logging(
         logging_state.begin_log_seconds(), logging_state.begin_log_nanoseconds(),
         logging_state.end_log_seconds(), logging_state.end_log_nanoseconds()))
     {
+        gaia_log::app().info(
+            "Initiating a logging interval: ({}, {}) - ({}, {})...",
+            event_seconds - seconds_past, event_nanoseconds,
+            event_seconds + seconds_forward, event_nanoseconds);
         auto logging_state_w = logging_state.writer();
         logging_state_w.begin_log_seconds = event_seconds - seconds_past;
         logging_state_w.begin_log_nanoseconds = event_nanoseconds;
@@ -205,6 +219,9 @@ void update_logging(
         logging_state.end_log_seconds(), logging_state.end_log_nanoseconds(),
         event_seconds + seconds_forward, event_nanoseconds))
     {
+        gaia_log::app().info(
+            "Extending current logging interval to: ({}, {})...",
+            event_seconds + seconds_forward, event_nanoseconds);
         auto logging_state_w = logging_state.writer();
         logging_state_w.end_log_seconds = event_seconds + seconds_forward;
         logging_state_w.end_log_nanoseconds = event_nanoseconds;

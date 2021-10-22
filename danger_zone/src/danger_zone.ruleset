@@ -40,10 +40,11 @@ ruleset objects_detection
 
         detection.processed = true;
 
-        // Use this opportunity to check if we need to issue a new logging request.
+        // Use this opportunity to check if we need to issue a new logging request
+        // for a time window in the past.
         // A logging request is capped to c_log_window_seconds at a time.
         // If a succession of events requires logging more than c_log_window_seconds.
-        // we will just issue multiple requests.
+        // we will just issue multiple requests, after each time window elapses.
         int32_t current_seconds = 0;
         uint32_t current_nanoseconds = 0;
         danger_zone_t::get_instance()->get_current_time(current_seconds, current_nanoseconds);
