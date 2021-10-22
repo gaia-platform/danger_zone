@@ -142,12 +142,11 @@ ruleset objects_detection
     }
 }
 
-/**
- * This ruleset handles the transition of an object from one zone to
- * another. The ruleset is marked as serial_group() to make the
- * rules within it run serially. This avoids transaction conflicts
- * when adding/removing objects from the zone table.
- */
+///////////////////////////////////////////////////////////////////////////////////////////////
+/// This ruleset handles the transition of an object from one zone to another.
+/// The ruleset is marked as serial_group() to make the rules within it run serially.
+/// This avoids transaction conflicts when adding/removing objects from the zone table.
+///////////////////////////////////////////////////////////////////////////////////////////////
 ruleset zone_transition : serial_group()
 {
     ///////////////////////////////////////////////////////////////////////////////////////////////
