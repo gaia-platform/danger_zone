@@ -253,8 +253,6 @@ void dump_d_object(const d_object_t& d_object)
 {
     printf("d_object id:            %s\n", d_object.object_id());
     printf("d_object score:         %f\n", d_object.score());
-    printf("d_object range:         %d\n", d_object.range_id());
-    printf("d_object direction:     %d\n", d_object.direction_id());
     printf(
         "d_object pos:           x = %f, y = %f, z = %f\n",
         d_object.pos_x(), d_object.pos_y(), d_object.pos_z());

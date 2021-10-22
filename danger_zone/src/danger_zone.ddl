@@ -55,10 +55,6 @@ table d_object (
     -- Detection score.
     score float,
 
-    -- Range and direction detected.
-    range_id int32,
-    direction_id int32,
-
     -- Position coordinates.
     pos_x float,
     pos_y float,

@@ -134,6 +134,7 @@ public:
         auto current_time = get_clock()->now();
         seconds = current_time.seconds();
         nanoseconds = current_time.nanoseconds();
+        gaia_log::app().info("Current time is: ({}, {}).", seconds, nanoseconds);
     }
 
     void send_obstacle_array_message(
@@ -195,7 +196,7 @@ private:
 
             // Note: detection.id.c_str() is non-unique ATM, it does not seem an ID either.
             auto db_detected_object_id = gaia::danger_zone::d_object_t::insert_row(
-                object.id(), max_hyp.hypothesis.score, 0, 0,
+                object.id(), max_hyp.hypothesis.score,
                 detection.bbox.center.position.x, detection.bbox.center.position.y,
                 detection.bbox.center.position.z,
                 detection.bbox.size.x, detection.bbox.size.y, detection.bbox.size.z,
