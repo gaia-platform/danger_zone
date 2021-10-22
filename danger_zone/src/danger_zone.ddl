@@ -43,7 +43,7 @@ table detection (
 
     -- Seconds/nanoseconds of detection frame.
     seconds int32,
-    nano_seconds uint32,
+    nanoseconds uint32,
 
     processed bool
 )
@@ -54,10 +54,6 @@ table d_object (
 
     -- Detection score.
     score float,
-
-    -- Range and direction detected.
-    range_id int32,
-    direction_id int32,
 
     -- Position coordinates.
     pos_x float,
@@ -77,13 +73,25 @@ table d_object (
 
     -- Detection time, stored redundantly because we cannot easily retrieve the detection for a d_object.
     seconds int32,
-    nano_seconds uint32,
+    nanoseconds uint32,
 
     -- Zone, numeric values gets 0 as default value,
     -- which corresponds to zones_t::c_no_zone.
     zone_id uint8,
 
     detection references detection
+)
+
+-- This table tracks the state of our logging requests.
+-- It tracks the begin and end of the time interval that we need to log.
+-- If begin_log < end_log, we are logging.
+-- If begin_log >= end_log, we are not logging.
+table logging_state (
+    begin_log_seconds int32,
+    begin_log_nanoseconds uint32,
+
+    end_log_seconds int32,
+    end_log_nanoseconds uint32
 )
 
 ---
@@ -97,7 +105,7 @@ table zone_transition_event (
 
     -- Detection time.
     seconds int32,
-    nano_seconds uint32
+    nanoseconds uint32
 )
 
 --
@@ -116,8 +124,8 @@ table zone_transition_event (
 --
 
 table send_trigger_log_action (
-    seconds int32,
-    nano_seconds uint32,
-    seconds_past int32,
-    seconds_forward int32
+    begin_seconds int32,
+    begin_nanoseconds uint32,
+    end_seconds int32,
+    end_nanoseconds uint32
 )

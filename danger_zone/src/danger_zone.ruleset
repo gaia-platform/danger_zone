@@ -7,6 +7,7 @@
 #include "gaia/logger.hpp"
 
 #include "gaia_danger_zone.h"
+#include "gaia_db.hpp"
 #include "danger_zone.hpp"
 #include "zones.hpp"
 
@@ -20,8 +21,9 @@ std::vector<std::string> topic_types{"sensor_msgs/Image", "sensor_msgs/LaserScan
 // Set this to an existing directory + desired log name.
 std::string log_file_base_name = "ros-topics-logs/retrolog";
 
+const int32_t c_log_window_seconds = 30;
 const int32_t c_log_seconds_past = 5;
-const int32_t c_log_seconds_forward = 25;
+const int32_t c_log_seconds_forward = c_log_window_seconds - c_log_seconds_past;
 
 using namespace gaia::danger_zone;
 
@@ -37,6 +39,19 @@ ruleset objects_detection
         }
 
         detection.processed = true;
+
+        // Use this opportunity to check if we need to issue a new logging request
+        // for a time window in the past.
+        // A logging request is capped to c_log_window_seconds at a time.
+        // If a succession of events requires logging more than c_log_window_seconds.
+        // we will just issue multiple requests, after each time window elapses.
+        int32_t current_seconds = detection.seconds;
+        uint32_t current_nanoseconds = detection.nanoseconds;
+        // Time of detections is not using standard format,
+        // so instead of using the current system time,
+        // we'll use the time of the last detection as "current time".
+        // danger_zone_t::get_instance()->get_current_time(current_seconds, current_nanoseconds);
+        check_and_log(current_seconds, current_nanoseconds, c_log_window_seconds);
     }
 
     on_update(d_object.zone_id)
@@ -54,7 +69,7 @@ ruleset objects_detection
                 from_zone_id: obj->zone_id(),
                 to_zone_id: d_object.zone_id,
                 seconds: d_object.seconds,
-                nano_seconds: d_object.nano_seconds);
+                nanoseconds: d_object.nanoseconds);
         }
     }
 
@@ -79,7 +94,7 @@ ruleset objects_detection
         // Now that all obstacle messages have been collected, we can send them.
         danger_zone_t::get_instance()->send_obstacle_array_message(
             obstacles,
-            detection.frame_id, detection.seconds, detection.nano_seconds);
+            detection.frame_id, detection.seconds, detection.nanoseconds);
     }
 }
 
@@ -115,11 +130,10 @@ ruleset zone_transition : serial_group()
 
         if (obj->zone_id() == obj->object_class().zone_id())
         {
-            send_trigger_log_action.insert(
-                seconds: event.seconds,
-                nano_seconds: event.nano_seconds,
-                seconds_past: c_log_seconds_past,
-                seconds_forward: c_log_seconds_forward);
+            // Update our logging state to cover this event.
+            update_logging(
+                event.seconds, event.nanoseconds,
+                c_log_seconds_past, c_log_seconds_forward);
         }
 
         // We no longer need the event record in the database.
@@ -132,8 +146,8 @@ ruleset snapshotter
     on_insert(action:send_trigger_log_action)
     {
         danger_zone_t::get_instance()->trigger_log(
-            action.seconds, action.nano_seconds,
-            action.seconds_past, action.seconds_forward,
+            action.begin_seconds, action.begin_nanoseconds,
+            action.end_seconds, action.end_nanoseconds,
             log_file_base_name,
             topic_names, topic_types);
 

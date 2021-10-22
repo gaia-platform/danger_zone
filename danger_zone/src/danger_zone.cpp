@@ -45,14 +45,14 @@ struct danger_zone_obstacles_t : public obstacles_t
 
     static danger_zone_msgs::msg::ObstacleArray::UniquePtr build_obstacle_array_message(
         std::vector<danger_zone_msgs::msg::Obstacle> obstacles,
-        std::string frame_id, int32_t seconds, uint32_t nano_seconds)
+        std::string frame_id, int32_t seconds, uint32_t nanoseconds)
     {
         danger_zone_msgs::msg::ObstacleArray::UniquePtr obstacle_array(new danger_zone_msgs::msg::ObstacleArray);
 
         obstacle_array->header = std_msgs::msg::Header();
         obstacle_array->header.frame_id = frame_id;
         obstacle_array->header.stamp.sec = seconds;
-        obstacle_array->header.stamp.nanosec = nano_seconds;
+        obstacle_array->header.stamp.nanosec = nanoseconds;
 
         for (const auto& obstacle : obstacles)
         {
@@ -129,28 +129,34 @@ public:
 
     // danger_zone_t interface implementation.
 
+    void get_current_time(int32_t& seconds, uint32_t& nanoseconds) override
+    {
+        auto current_time = get_clock()->now();
+        seconds = current_time.seconds();
+        nanoseconds = current_time.nanoseconds();
+        gaia_log::app().info("Current time is: ({}, {}).", seconds, nanoseconds);
+    }
+
     void send_obstacle_array_message(
         std::shared_ptr<obstacles_t> obstacles,
-        std::string frame_id, int32_t seconds, uint32_t nano_seconds) override
+        std::string frame_id, int32_t seconds, uint32_t nanoseconds) override
     {
         std::shared_ptr<danger_zone_obstacles_t> danger_zone_obstacles
             = std::dynamic_pointer_cast<danger_zone_obstacles_t>(obstacles);
 
         m_obstacles_pub->publish(danger_zone_obstacles_t::build_obstacle_array_message(
-            danger_zone_obstacles->obstacles_vector, frame_id, seconds, nano_seconds));
+            danger_zone_obstacles->obstacles_vector, frame_id, seconds, nanoseconds));
     }
 
     void trigger_log(
-        int32_t base_seconds, uint32_t base_nano_seconds,
-        int32_t seconds_past, int32_t seconds_forward,
+        int32_t begin_seconds, uint32_t begin_nanoseconds,
+        int32_t end_seconds, uint32_t end_nanoseconds,
         std::string file_name,
         std::vector<std::string> topic_names, std::vector<std::string> topic_types) override
     {
-        int32_t start_seconds = base_seconds - seconds_past;
-        int32_t end_seconds = base_seconds + seconds_forward;
         m_snapshot_client->send_request(
-            start_seconds, base_nano_seconds,
-            end_seconds, base_nano_seconds,
+            begin_seconds, begin_nanoseconds,
+            end_seconds, end_nanoseconds,
             file_name,
             topic_names, topic_types);
     }
@@ -190,7 +196,7 @@ private:
 
             // Note: detection.id.c_str() is non-unique ATM, it does not seem an ID either.
             auto db_detected_object_id = gaia::danger_zone::d_object_t::insert_row(
-                object.id(), max_hyp.hypothesis.score, 0, 0,
+                object.id(), max_hyp.hypothesis.score,
                 detection.bbox.center.position.x, detection.bbox.center.position.y,
                 detection.bbox.center.position.z,
                 detection.bbox.size.x, detection.bbox.size.y, detection.bbox.size.z,
@@ -229,6 +235,7 @@ int main(int argc, char* argv[])
     gaia::db::begin_transaction();
     initialize_zones();
     initialize_object_classes();
+    initialize_logging_state();
     gaia::db::commit_transaction();
 
     rclcpp::init(argc, argv);
