@@ -5,8 +5,6 @@
 
 #include "snapshot_client.hpp"
 
-#include "gaia/logger.hpp"
-
 SnapshotClient::SnapshotClient()
 {
 }
@@ -96,23 +94,6 @@ bool SnapshotClient::send_request(
         topic_details->push_back(*topic_detail);
     }
     req->set__topics(*topic_details);
-
-    std::string top;
-    for (const auto& topic : req->topics)
-    {
-        top += topic.name + " [" + topic.type + "],";
-    }
-
-    gaia_log::app().info("\nTriggerSnapshot::Request \nI'll tr"
-                         "start_time_sec: {} \n"
-                         "start_time_nsec: {} \n"
-                         "end_time_sec: {} \n"
-                         "end_time_nsec: {} \n"
-                         "filename: {} \n"
-                         "topics: {}",
-                         req->start_time.sec, req->start_time.nanosec, req->stop_time.sec, req->stop_time.nanosec, req->filename, top);
-
-
 
     auto result = m_snapshot_client->async_send_request(req);
 
