@@ -166,9 +166,16 @@ private:
     {
         gaia::db::begin_transaction();
 
+        // The time coming from the simulation is "midnight" based, while ROS is epoch based.
+        // We need to use the ROS time to correctly trigger the snapshot which messages are
+        // recorded according to ROS time.
+        // For this reason we override the simulation time with the current ROS time. This is
+        // a workaround that hopefully can be removed once the simulation time is fixed.
+        rclcpp::Time now = get_clock()->now();
+
         // Create a detection record to reference all detected objects.
         auto db_detection_id = gaia::danger_zone::detection_t::insert_row(
-            msg->header.frame_id.c_str(), msg->header.stamp.sec, msg->header.stamp.nanosec, false);
+            msg->header.frame_id.c_str(), now.seconds(), now.nanoseconds(), false);
         auto db_detection = gaia::danger_zone::detection_t::get(db_detection_id);
 
         for (const vision_msgs::msg::Detection3D& detection : msg->detections)
@@ -202,7 +209,7 @@ private:
                 detection.bbox.size.x, detection.bbox.size.y, detection.bbox.size.z,
                 max_hyp.pose.pose.orientation.x, max_hyp.pose.pose.orientation.y,
                 max_hyp.pose.pose.orientation.z, max_hyp.pose.pose.orientation.w,
-                msg->header.stamp.sec, msg->header.stamp.nanosec,
+                now.seconds(), now.nanoseconds(),
                 zones_t::c_no_zone);
             auto db_detected_object = gaia::danger_zone::d_object_t::get(db_detected_object_id);
 
@@ -228,15 +235,20 @@ int main(int argc, char* argv[])
 {
     gaia::system::initialize();
 
+    gaia_log::app().info("Cleaning database...");
     gaia::db::begin_transaction();
     clean_db();
     gaia::db::commit_transaction();
+    gaia_log::app().info("Database clean complete!");
 
+    gaia_log::app().info("Initializing database...");
     gaia::db::begin_transaction();
     initialize_zones();
     initialize_object_classes();
     initialize_logging_state();
     gaia::db::commit_transaction();
+    gaia_log::app().info("Database initialization complete!");
+
 
     rclcpp::init(argc, argv);
     rclcpp::spin(std::make_shared<subscriber_node_t>());

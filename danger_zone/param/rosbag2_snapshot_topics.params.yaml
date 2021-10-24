@@ -1,0 +1,8 @@
+/**:
+  ros__parameters:
+    topics: ["/image", "/scan"]
+    topic_details:
+      /image:
+        type: "sensor_msgs/Image"
+      /scan:
+        type: "sensor_msgs/LaserScan"

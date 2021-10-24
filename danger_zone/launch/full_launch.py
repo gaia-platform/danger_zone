@@ -1,8 +1,16 @@
+import os
+from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node
 
 # TODO: does not launch the Unity simulator yet.
 def generate_launch_description():
+    rosbag2_params = os.path.join(
+        get_package_share_directory('danger_zone'),
+        'param',
+        'rosbag2_snapshot_topics.params.yaml'
+    )
+
     unity_bridge_node = Node(
         package='ros_tcp_endpoint',
         executable='default_server_endpoint',
@@ -29,7 +37,8 @@ def generate_launch_description():
         executable='snapshotter',
         name='snapshotter',
         output='screen',
-        emulate_tty=True
+        emulate_tty=True,
+        parameters = [rosbag2_params]
     )
 
     return LaunchDescription([unity_bridge_node, danger_zone_node, snapshotter_node])

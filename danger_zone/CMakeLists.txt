@@ -85,4 +85,8 @@ install(DIRECTORY
   launch
   DESTINATION share/${PROJECT_NAME})
 
+install(DIRECTORY
+    param
+    DESTINATION share/${PROJECT_NAME})
+
 ament_package()
