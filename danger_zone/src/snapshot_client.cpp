@@ -109,7 +109,7 @@ bool SnapshotClient::send_request(
     }
     else
     {
-      RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Failed to call service add_two_ints");
+      RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Failed to call service %s", m_service_name.c_str());
     }*/
 
     return true;
