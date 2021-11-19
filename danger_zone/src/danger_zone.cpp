@@ -9,6 +9,7 @@
 #include <memory>
 
 #include <danger_zone_msgs/msg/obstacle_array.hpp>
+#include <danger_zone_msgs/msg/snapshot_triggered.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <vision_msgs/msg/detection3_d.hpp>
 #include <vision_msgs/msg/detection3_d_array.hpp>

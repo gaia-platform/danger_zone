@@ -20,6 +20,7 @@ find_package(vision_msgs    REQUIRED)
 set(MSG_FILES
   msg/Obstacle.msg
   msg/ObstacleArray.msg
+  msg/SnapshotTriggered.msg
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME}
