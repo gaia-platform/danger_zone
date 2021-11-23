@@ -145,22 +145,19 @@ public:
     danger_zone_msgs::msg::SnapshotTriggered::UniquePtr build_triggered_message(
         int32_t start_sec, uint32_t start_nsec, int32_t end_sec, uint32_t end_nsec,
         std::string file_name,
-        std::vector<std::string> topic_names, std::vector<std::string> topic_types )
+        const std::vector<std::string> &topic_names, const std::vector<std::string> &topic_types )
     {
         auto trig_msg = 
             std::make_unique<danger_zone_msgs::msg::SnapshotTriggered>();
 
-        auto current_time = get_clock()->now();
-
         trig_msg->header = std_msgs::msg::Header();
-        trig_msg->header.stamp.sec = current_time.seconds();
-        trig_msg->header.stamp.nanosec = current_time.nanoseconds();
+        trig_msg->header.stamp = now();
 
         builtin_interfaces::msg::Time start_time;
         builtin_interfaces::msg::Time end_time;
 
-        start_time.set__sec(start_sec);
-        start_time.set__nanosec(start_nsec);
+        start_time.sec = start_sec;
+        start_time.nanosec = start_nsec;
 
         end_time.set__sec(end_sec);
         end_time.set__nanosec(end_nsec);
@@ -169,7 +166,7 @@ public:
         trig_msg->set__stop_time(end_time);
         trig_msg->set__filename(file_name);
 
-        auto topic_details = std::make_shared<std::vector<danger_zone_msgs::msg::TriggeredTopicDetails>>();
+        auto topic_details = std::vector<danger_zone_msgs::msg::TriggeredTopicDetails>();
 
         for (std::size_t index = 0; index < topic_names.size(); ++index)
         {
@@ -178,9 +175,9 @@ public:
             topic_detail->set__name(topic_names[index]);
             topic_detail->set__type(topic_types[index]);
 
-            topic_details->push_back(*topic_detail);
+            topic_details.push_back(*topic_detail);
         }
-        trig_msg->set__topics(*topic_details);
+        trig_msg->set__topics(topic_details);
 
         return trig_msg;
     }

@@ -99,18 +99,5 @@ bool SnapshotClient::send_request(
 
     RCLCPP_DEBUG(rclcpp::get_logger("rclcpp"), "Service request sent: %s", m_service_name.c_str());
 
-    /* TODO * enable?
-
-    if (rclcpp::spin_until_future_complete(m_snapshot_client, result) ==
-      rclcpp::FutureReturnCode::SUCCESS)
-    {
-      RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "Result: %s : %s",
-        result.get()->success?"success":"failue", result.get()->message.c_str());
-    }
-    else
-    {
-      RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Failed to call service %s", m_service_name.c_str());
-    }*/
-
     return true;
 }
