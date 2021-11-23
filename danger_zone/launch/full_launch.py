@@ -28,7 +28,7 @@ def generate_launch_description():
 
     danger_zone_node = Node(
         package='danger_zone',
-        namespace='gaia',
+        namespace='komatsu',
         executable='danger_zone',
         name='danger_zone',
         output='screen',

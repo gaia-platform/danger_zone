@@ -270,9 +270,9 @@ private:
     }
 
 private:
-    const std::string m_detected_topic_name = "/komatsu/detections";
-    const std::string m_obstacles_topic_name = "/komatsu/obstacles";
-    const std::string m_triggered_topic_name = "/komatsu/triggered";
+    const std::string m_detected_topic_name = "detections";
+    const std::string m_obstacles_topic_name = "obstacles";
+    const std::string m_triggered_topic_name = "triggered";
     // Name found in snapshotter.cpp.
     const std::string m_snapshot_service_name = "trigger_snapshot";
 
