@@ -4,10 +4,6 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    lidar_tf = Node(package = "tf2_ros", 
-                   executable = "static_transform_publisher",
-                   arguments = ["0", "0", "0", "0", "0", "0", "map", "lidar"])
-
     danger_zone_node = Node(
         package='danger_zone',
         namespace='komatsu',
@@ -17,4 +13,4 @@ def generate_launch_description():
         emulate_tty=True
     )
 
-    return LaunchDescription([lidar_tf, danger_zone_node])
+    return LaunchDescription([danger_zone_node])
