@@ -9,6 +9,7 @@
 #include <memory>
 
 #include <danger_zone_msgs/msg/obstacle_array.hpp>
+#include <danger_zone_msgs/msg/snapshot_triggered.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <vision_msgs/msg/detection3_d.hpp>
 #include <vision_msgs/msg/detection3_d_array.hpp>
@@ -47,7 +48,8 @@ struct danger_zone_obstacles_t : public obstacles_t
         std::vector<danger_zone_msgs::msg::Obstacle> obstacles,
         std::string frame_id, int32_t seconds, uint32_t nanoseconds)
     {
-        danger_zone_msgs::msg::ObstacleArray::UniquePtr obstacle_array(new danger_zone_msgs::msg::ObstacleArray);
+        danger_zone_msgs::msg::ObstacleArray::UniquePtr obstacle_array(
+            new danger_zone_msgs::msg::ObstacleArray);
 
         obstacle_array->header = std_msgs::msg::Header();
         obstacle_array->header.frame_id = frame_id;
@@ -123,6 +125,9 @@ public:
         m_obstacles_pub = this->create_publisher<danger_zone_msgs::msg::ObstacleArray>(
             m_obstacles_topic_name, 1);
 
+        m_triggered_pub = this->create_publisher<danger_zone_msgs::msg::SnapshotTriggered>(
+            m_triggered_topic_name, 1);
+
         m_snapshot_client = std::make_shared<SnapshotClient>();
         m_snapshot_client->connect(this, m_snapshot_service_name);
     }
@@ -135,6 +140,46 @@ public:
         seconds = current_time.seconds();
         nanoseconds = current_time.nanoseconds();
         gaia_log::app().info("Current time is: ({}, {}).", seconds, nanoseconds);
+    }
+
+    danger_zone_msgs::msg::SnapshotTriggered::UniquePtr build_triggered_message(
+        int32_t start_sec, uint32_t start_nsec, int32_t end_sec, uint32_t end_nsec,
+        std::string file_name,
+        const std::vector<std::string> &topic_names, const std::vector<std::string> &topic_types )
+    {
+        auto trig_msg = 
+            std::make_unique<danger_zone_msgs::msg::SnapshotTriggered>();
+
+        trig_msg->header = std_msgs::msg::Header();
+        trig_msg->header.stamp = now();
+
+        builtin_interfaces::msg::Time start_time;
+        builtin_interfaces::msg::Time end_time;
+
+        start_time.sec = start_sec;
+        start_time.nanosec = start_nsec;
+
+        end_time.set__sec(end_sec);
+        end_time.set__nanosec(end_nsec);
+
+        trig_msg->set__start_time(start_time);
+        trig_msg->set__stop_time(end_time);
+        trig_msg->set__filename(file_name);
+
+        auto topic_details = std::vector<danger_zone_msgs::msg::TriggeredTopicDetails>();
+
+        for (std::size_t index = 0; index < topic_names.size(); ++index)
+        {
+            auto topic_detail = std::make_shared<danger_zone_msgs::msg::TriggeredTopicDetails>();
+
+            topic_detail->set__name(topic_names[index]);
+            topic_detail->set__type(topic_types[index]);
+
+            topic_details.push_back(*topic_detail);
+        }
+        trig_msg->set__topics(topic_details);
+
+        return trig_msg;
     }
 
     void send_obstacle_array_message(
@@ -154,11 +199,15 @@ public:
         std::string file_name,
         std::vector<std::string> topic_names, std::vector<std::string> topic_types) override
     {
+        m_triggered_pub->publish(build_triggered_message(
+            begin_seconds, begin_nanoseconds,
+            end_seconds, end_nanoseconds,
+            file_name, topic_names, topic_types));
+
         m_snapshot_client->send_request(
             begin_seconds, begin_nanoseconds,
             end_seconds, end_nanoseconds,
-            file_name,
-            topic_names, topic_types);
+            file_name, topic_names, topic_types);
     }
 
 private:
@@ -221,13 +270,15 @@ private:
     }
 
 private:
-    const std::string m_detected_topic_name = "/komatsu/detections";
-    const std::string m_obstacles_topic_name = "/komatsu/obstacles";
+    const std::string m_detected_topic_name = "detections";
+    const std::string m_obstacles_topic_name = "obstacles";
+    const std::string m_triggered_topic_name = "triggered";
     // Name found in snapshotter.cpp.
     const std::string m_snapshot_service_name = "trigger_snapshot";
 
     [[maybe_unused]] rclcpp::Subscription<vision_msgs::msg::Detection3DArray>::SharedPtr m_detection3d_subscription;
     rclcpp::Publisher<danger_zone_msgs::msg::ObstacleArray>::SharedPtr m_obstacles_pub;
+    rclcpp::Publisher<danger_zone_msgs::msg::SnapshotTriggered>::SharedPtr m_triggered_pub;
     std::shared_ptr<SnapshotClient> m_snapshot_client;
 };
 
