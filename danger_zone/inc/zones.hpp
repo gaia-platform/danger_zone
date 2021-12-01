@@ -9,6 +9,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 class zones_t
 {
@@ -20,6 +21,16 @@ public:
     static constexpr uint8_t c_red_zone = 1;
     static constexpr uint8_t c_yellow_zone = 2;
     static constexpr uint8_t c_green_zone = 3;
+
+    struct Point3d
+    {
+        double x = 0.0;
+        double y = 0.0;
+        double z = 0.0;
+
+        Point3d(double x, double y, double z) : x(x), y(y), z(z)
+        {}
+    };
 
 public:
     /**
@@ -80,6 +91,13 @@ private:
      * Find the distance from the sensor to the detected object.
      */
     static double get_range(double x, double y);
+
+    /**
+     * Find the shortest distance between two shapes.
+     */
+    static double get_range(
+        const std::vector<Point3d> &shape1, 
+        const std::vector<Point3d> &shape2);
 
     /**
      * Find the direction of the object relative to the sensor.

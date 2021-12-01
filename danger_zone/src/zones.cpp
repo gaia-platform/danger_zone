@@ -4,12 +4,55 @@
 /////////////////////////////////////////////
 
 #include "zones.hpp"
-
 #include <stdexcept>
+#include <CGAL/Polytope_distance_d.h>
+#include <CGAL/Polytope_distance_d_traits_3.h>
+#include <CGAL/Homogeneous.h>
+
+#ifdef CGAL_USE_GMP
+#include <CGAL/Gmpzf.h>
+typedef CGAL::Gmpzf ET;
+#else
+#include <CGAL/MP_Float.h>
+typedef CGAL::MP_Float ET;
+#endif
+// use an inexact kernel...
+typedef CGAL::Homogeneous<double>                         K;
+typedef K::Point_3                                        Point;
+// ... and the EXACT traits class based on the inexcat kernel
+typedef CGAL::Polytope_distance_d_traits_3<K, ET, double> Traits;
+typedef CGAL::Polytope_distance_d<Traits>                 Polytope_distance;
 
 double zones_t::get_range(double x, double y)
 {
     return std::sqrt(x * x + y * y);
+}
+
+double zones_t::get_range(
+        const std::vector<Point3d> &shape1, 
+        const std::vector<Point3d> &shape2) 
+{
+    // convert shape1 points
+    std::vector<Point> Pp(shape1.size());
+
+    for(auto Pv:shape1)
+        Pp.push_back(Point(Pv.x,Pv.y,Pv.z));
+
+    auto P = Pp.data();  
+
+    // convert shape2 points
+    std::vector<Point> Qp(shape2.size());
+
+    for(auto Qv:shape2)
+        Qp.push_back(Point(Qv.x,Qv.y,Qv.z));
+
+    auto Q = Qp.data();  
+
+    // see https://doc.cgal.org/latest/Polytope_distance_d/index.html
+    Polytope_distance pd(P, P+shape1.size(), Q, Q+shape2.size());
+
+    return sqrt( CGAL::to_double (pd.squared_distance_numerator()) /
+        CGAL::to_double (pd.squared_distance_denominator()));
 }
 
 uint8_t zones_t::get_range_zone_id(double x, double y)
