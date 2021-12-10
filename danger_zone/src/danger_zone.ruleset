@@ -55,6 +55,20 @@ ruleset objects_detection
         detection.processed = true;
     }
 
+    // uncomment to use distance bewteen convex hulls
+    /*on_insert(detection)
+    {
+        for (detection->obj:d_object)
+        {
+            // Sets the zone using the size and pose of the detected object
+            obj.zone_id = zones_t::get_range_zone_id(
+                obj.pos_x, obj.pos_y, obj.pos_z, obj.size_x, obj.size_y, obj.size_z,
+                obj.orient_x, obj.orient_y, obj.orient_z, obj.orient_w);
+        }
+
+        detection.processed = true;
+    }*/
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
     /// Use the insertion of a detection to evaluate
     /// whether it's time to perform the logging of another window of events.

@@ -7,7 +7,9 @@
 #include <stdexcept>
 #include <CGAL/Polytope_distance_d.h>
 #include <CGAL/Polytope_distance_d_traits_3.h>
-#include <CGAL/Homogeneous.h>
+#include <CGAL/Homogeneous.h>     
+#include "danger_zone.hpp"
+#include <tf2/LinearMath/Quaternion.h>
 
 #ifdef CGAL_USE_GMP
 #include <CGAL/Gmpzf.h>
@@ -29,8 +31,8 @@ double zones_t::get_range(double x, double y)
 }
 
 double zones_t::get_range(
-        const std::vector<Point3d> &shape1, 
-        const std::vector<Point3d> &shape2) 
+        const std::vector<point_3d> &shape1, 
+        const std::vector<point_3d> &shape2) 
 {
     // convert shape1 points
     std::vector<Point> Pp(shape1.size());
@@ -67,6 +69,93 @@ uint8_t zones_t::get_range_zone_id(double x, double y)
         }
     }
 
+    return c_no_zone;
+}
+
+uint8_t zones_t::get_range_zone_id(
+    const std::vector<point_3d> &shape1, 
+    const std::vector<point_3d> &shape2)
+{
+    auto distance = get_range(shape1, shape2);
+
+    for (auto range_id : c_range_id)
+    {
+        if (range_id[c_index_radius] > distance)
+        {
+            return range_id[c_index_zone];
+        }
+    }
+
+    return c_no_zone;
+}
+
+// rotate the cube around the origin, then transpose to position
+void get_cube( 
+        double pos_x, double pos_y, double pos_z, 
+        double size_x, double size_y, double size_z, 
+        double orient_x, double orient_y, double orient_z, double orient_w,
+        tf2::Vector3 cube[] )
+{
+    tf2::Quaternion rotation(orient_x, orient_y, orient_z, orient_w);
+    tf2::Vector3 position(pos_x, pos_y, pos_z);
+
+    cube[0] = (tf2::quatRotate(rotation, tf2::Vector3(size_x/2, size_y/2, size_z/2))) + position;
+    cube[1] = (tf2::quatRotate(rotation, tf2::Vector3(size_x/2, size_y/2, -size_z/2))) + position;
+    cube[2] = (tf2::quatRotate(rotation, tf2::Vector3(size_x/2, -size_y/2, size_z/2))) + position;
+    cube[3] = (tf2::quatRotate(rotation, tf2::Vector3(size_x/2, -size_y/2, -size_z/2))) + position;
+    cube[4] = (tf2::quatRotate(rotation, tf2::Vector3(-size_x/2, size_y/2, size_z/2))) + position;
+    cube[5] = (tf2::quatRotate(rotation, tf2::Vector3(-size_x/2, size_y/2, -size_z/2))) + position;
+    cube[6] = (tf2::quatRotate(rotation, tf2::Vector3(-size_x/2, -size_y/2, size_z/2))) + position;
+    cube[7] = (tf2::quatRotate(rotation, tf2::Vector3(-size_x/2, -size_y/2, -size_z/2))) + position;
+}
+
+uint8_t zones_t::get_range_zone_id( 
+        double pos_x, double pos_y, double pos_z, 
+        double size_x, double size_y, double size_z, 
+        double orient_x, double orient_y, double orient_z, double orient_w )
+{
+    tf2::Vector3 cube[vertices_in_cube];
+
+    // rotate the cube around the origin, then transpose to position
+    get_cube( pos_x, pos_y, pos_z, 
+        size_x, size_y, size_z, 
+        orient_x, orient_y, orient_z, orient_w,
+        cube );
+
+    Point P[8];
+    int index = 0;
+
+    // convert cube to CGAL points
+    for(auto vertex:cube)
+        P[index++] = Point(vertex.x(), vertex.y(), vertex.z());
+
+    // fetch the ego shape from the node instance 
+    auto ego_shape = danger_zone_t::get_instance()->get_ego_shape();
+
+    // convert ego to CGAL points
+    std::vector<Point> Qp(ego_shape.size());
+
+    for(auto Qv:ego_shape)
+        Qp.push_back(Point(Qv.x,Qv.y,Qv.z));
+
+    auto Q = Qp.data();  
+
+    // find the distance
+    Polytope_distance pd(P, P+8, Q, Q+ego_shape.size());
+
+    auto distance= sqrt( CGAL::to_double (pd.squared_distance_numerator()) /
+        CGAL::to_double (pd.squared_distance_denominator()));
+
+    // find the range
+    for (auto range_id : c_range_id)
+    {
+        if (range_id[c_index_radius] > distance)
+        {
+            return range_id[c_index_zone];
+        }
+    }
+
+    // return error code if zone not found
     return c_no_zone;
 }
 
