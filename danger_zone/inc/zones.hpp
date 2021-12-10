@@ -9,6 +9,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 class zones_t
 {
@@ -21,11 +22,39 @@ public:
     static constexpr uint8_t c_yellow_zone = 2;
     static constexpr uint8_t c_green_zone = 3;
 
+    struct point_3d
+    {
+        double x = 0.0;
+        double y = 0.0;
+        double z = 0.0;
+
+        point_3d(double x, double y, double z) : x(x), y(y), z(z)
+        {}
+    };
+
 public:
+
+    static std::vector<zones_t::point_3d> get_ego_shape();
+
     /**
      * Return the zone_id based on the distance from the given coordinates.
      */
     static uint8_t get_range_zone_id(double x, double y);
+
+    /**
+     * Return the zone_id based on the minimum distance between two 3D shapes
+     */
+    static uint8_t get_range_zone_id(
+        const std::vector<zones_t::point_3d> &shape1, 
+        const std::vector<zones_t::point_3d> &shape2);
+
+    /**
+     * Return the zone_id based on the minimum distance between two detected objects
+     */
+    static uint8_t get_range_zone_id( 
+        double pos_x, double pos_y, double pos_z, 
+        double size_x, double size_y, double size_z, 
+        double orient_x, double orient_y, double orient_z, double orient_w );
 
     /**
      * Return the direction_id based on the distance from the given coordinates.
@@ -74,12 +103,22 @@ private:
         {360 * c_rad_per_deg, 5}};
 
     static constexpr double c_default_angle_id = 6;
+    static constexpr int vertices_in_cube = 8;
+
+    //static std::shared_ptr<std::vector<zones_t::Point3d>> m_ego_shape;
 
 private:
     /**
      * Find the distance from the sensor to the detected object.
      */
     static double get_range(double x, double y);
+
+    /**
+     * Find the shortest distance between two shapes.
+     */
+    static double get_range(
+        const std::vector<zones_t::point_3d> &shape1, 
+        const std::vector<zones_t::point_3d> &shape2);
 
     /**
      * Find the direction of the object relative to the sensor.

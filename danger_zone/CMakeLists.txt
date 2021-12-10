@@ -42,6 +42,7 @@ find_package(danger_zone_msgs REQUIRED)
 find_package(rosbag2_cpp REQUIRED)
 find_package(rosbag2_snapshot_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
+find_package(CGAL REQUIRED)
 
 set(DANGER_ZONE_INCLUDES ${PROJECT_SOURCE_DIR}/inc ${CMAKE_CURRENT_SOURCE_DIR}/inc)
 set(DANGER_ZONE_DB_NAME danger_zone)
@@ -75,7 +76,7 @@ add_executable(danger_zone
 target_add_gaia_generated_sources(danger_zone)
 ament_target_dependencies(danger_zone rclcpp rclcpp_action std_msgs sensor_msgs vision_msgs danger_zone_msgs rosbag2_snapshot_msgs)
 target_include_directories(danger_zone PRIVATE ${GAIA_INC} ${DANGER_ZONE_INCLUDES})
-target_link_libraries(danger_zone ${GAIA_LIB})
+target_link_libraries(danger_zone ${GAIA_LIB} CGAL::CGAL)
 
 install(TARGETS
   danger_zone

@@ -119,6 +119,8 @@ public:
         // TODO: make this modern.
         danger_zone_ptr = static_cast<danger_zone_t*>(this);
 
+        set_ego_shape();
+
         m_detection3d_subscription = this->create_subscription<vision_msgs::msg::Detection3DArray>(
             m_detected_topic_name, 10, std::bind(&subscriber_node_t::detection3d_callback, this, _1));
 
@@ -133,6 +135,11 @@ public:
     }
 
     // danger_zone_t interface implementation.
+
+    std::vector<zones_t::point_3d> get_ego_shape() override
+    {
+        return m_ego_shape;
+    }
 
     void get_current_time(int32_t& seconds, uint32_t& nanoseconds) override
     {
@@ -269,6 +276,24 @@ private:
         gaia::db::commit_transaction();
     }
 
+    void set_ego_shape()
+    {
+        // For demo only. Create an ego shape with eight vertices. 
+        // In production you would set these in config and read them in here.
+        // If the shape of the ego can change, for example if it has 
+        // an articulated arm, then the shape would be more complex and 
+        // would have to be updated at runtime.
+        
+        m_ego_shape.push_back(zones_t::point_3d(4,2,4));
+        m_ego_shape.push_back(zones_t::point_3d(4,2,4));
+        m_ego_shape.push_back(zones_t::point_3d(4,-2,4));
+        m_ego_shape.push_back(zones_t::point_3d(4,-2,4));
+        m_ego_shape.push_back(zones_t::point_3d(-4,2,0));
+        m_ego_shape.push_back(zones_t::point_3d(-4,-2,0));
+        m_ego_shape.push_back(zones_t::point_3d(-4,2,0));
+        m_ego_shape.push_back(zones_t::point_3d(-4,-2,0));
+    }
+
 private:
     const std::string m_detected_topic_name = "detections";
     const std::string m_obstacles_topic_name = "obstacles";
@@ -299,7 +324,6 @@ int main(int argc, char* argv[])
     initialize_logging_state();
     gaia::db::commit_transaction();
     gaia_log::app().info("Database initialization complete!");
-
 
     rclcpp::init(argc, argv);
     rclcpp::spin(std::make_shared<subscriber_node_t>());

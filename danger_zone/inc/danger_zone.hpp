@@ -8,6 +8,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "zones.hpp"
 
 /**
  * @brief Interface used to construct a collection of obstacle messages from inside Gaia rules.
@@ -72,6 +73,9 @@ protected:
     inline static danger_zone_t* danger_zone_ptr = nullptr;
 #pragma GCC diagnostic pop
 
+    //std::shared_ptr<std::vector<zones_t::Point3d>> m_ego_shape;
+    std::vector<zones_t::point_3d> m_ego_shape;
+
 public:
     /**
      * Class factory, this is the only method allowed for obtaining an instance
@@ -85,6 +89,8 @@ public:
     {
         return danger_zone_ptr;
     }
+
+    virtual std::vector<zones_t::point_3d> get_ego_shape() = 0;
 
     /**
      * Call this from within a Gaia rule to get the current time information.
@@ -111,6 +117,8 @@ public:
     virtual void send_obstacle_array_message(
         std::shared_ptr<obstacles_t> obstacles,
         std::string frame_id, int32_t seconds, uint32_t nanoseconds) = 0;
+
+
 
     /**
      * Call this from within a rule to trigger a log event.
