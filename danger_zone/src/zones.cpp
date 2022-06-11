@@ -1,13 +1,16 @@
-/////////////////////////////////////////////
-// Copyright (c) Gaia Platform LLC
-// All rights reserved.
-/////////////////////////////////////////////
+////////////////////////////////////////////////////
+// Copyright (c) Gaia Platform Authors
+//
+// Use of this source code is governed by the MIT
+// license that can be found in the LICENSE.txt file
+// or at https://opensource.org/licenses/MIT.
+////////////////////////////////////////////////////
 
 #include "zones.hpp"
 #include <stdexcept>
 #include <CGAL/Polytope_distance_d.h>
 #include <CGAL/Polytope_distance_d_traits_3.h>
-#include <CGAL/Homogeneous.h>     
+#include <CGAL/Homogeneous.h>
 #include "danger_zone.hpp"
 #include <tf2/LinearMath/Quaternion.h>
 
@@ -31,8 +34,8 @@ double zones_t::get_range(double x, double y)
 }
 
 double zones_t::get_range(
-        const std::vector<point_3d> &shape1, 
-        const std::vector<point_3d> &shape2) 
+        const std::vector<point_3d> &shape1,
+        const std::vector<point_3d> &shape2)
 {
     // convert shape1 points
     std::vector<Point> Pp(shape1.size());
@@ -40,7 +43,7 @@ double zones_t::get_range(
     for(auto Pv:shape1)
         Pp.push_back(Point(Pv.x,Pv.y,Pv.z));
 
-    auto P = Pp.data();  
+    auto P = Pp.data();
 
     // convert shape2 points
     std::vector<Point> Qp(shape2.size());
@@ -48,7 +51,7 @@ double zones_t::get_range(
     for(auto Qv:shape2)
         Qp.push_back(Point(Qv.x,Qv.y,Qv.z));
 
-    auto Q = Qp.data();  
+    auto Q = Qp.data();
 
     // see https://doc.cgal.org/latest/Polytope_distance_d/index.html
     Polytope_distance pd(P, P+shape1.size(), Q, Q+shape2.size());
@@ -73,7 +76,7 @@ uint8_t zones_t::get_range_zone_id(double x, double y)
 }
 
 uint8_t zones_t::get_range_zone_id(
-    const std::vector<point_3d> &shape1, 
+    const std::vector<point_3d> &shape1,
     const std::vector<point_3d> &shape2)
 {
     auto distance = get_range(shape1, shape2);
@@ -90,9 +93,9 @@ uint8_t zones_t::get_range_zone_id(
 }
 
 // rotate the cube around the origin, then transpose to position
-void get_cube( 
-        double pos_x, double pos_y, double pos_z, 
-        double size_x, double size_y, double size_z, 
+void get_cube(
+        double pos_x, double pos_y, double pos_z,
+        double size_x, double size_y, double size_z,
         double orient_x, double orient_y, double orient_z, double orient_w,
         tf2::Vector3 cube[] )
 {
@@ -109,16 +112,16 @@ void get_cube(
     cube[7] = (tf2::quatRotate(rotation, tf2::Vector3(-size_x/2, -size_y/2, -size_z/2))) + position;
 }
 
-uint8_t zones_t::get_range_zone_id( 
-        double pos_x, double pos_y, double pos_z, 
-        double size_x, double size_y, double size_z, 
+uint8_t zones_t::get_range_zone_id(
+        double pos_x, double pos_y, double pos_z,
+        double size_x, double size_y, double size_z,
         double orient_x, double orient_y, double orient_z, double orient_w )
 {
     tf2::Vector3 cube[vertices_in_cube];
 
     // rotate the cube around the origin, then transpose to position
-    get_cube( pos_x, pos_y, pos_z, 
-        size_x, size_y, size_z, 
+    get_cube( pos_x, pos_y, pos_z,
+        size_x, size_y, size_z,
         orient_x, orient_y, orient_z, orient_w,
         cube );
 
@@ -129,7 +132,7 @@ uint8_t zones_t::get_range_zone_id(
     for(auto vertex:cube)
         P[index++] = Point(vertex.x(), vertex.y(), vertex.z());
 
-    // fetch the ego shape from the node instance 
+    // fetch the ego shape from the node instance
     auto ego_shape = danger_zone_t::get_instance()->get_ego_shape();
 
     // convert ego to CGAL points
@@ -138,7 +141,7 @@ uint8_t zones_t::get_range_zone_id(
     for(auto Qv:ego_shape)
         Qp.push_back(Point(Qv.x,Qv.y,Qv.z));
 
-    auto Q = Qp.data();  
+    auto Q = Qp.data();
 
     // find the distance
     Polytope_distance pd(P, P+8, Q, Q+ego_shape.size());
