@@ -1,7 +1,10 @@
-/////////////////////////////////////////////
-// Copyright (c) Gaia Platform LLC
-// All rights reserved.
-/////////////////////////////////////////////
+////////////////////////////////////////////////////
+// Copyright (c) Gaia Platform Authors
+//
+// Use of this source code is governed by the MIT
+// license that can be found in the LICENSE.txt file
+// or at https://opensource.org/licenses/MIT.
+////////////////////////////////////////////////////
 
 #include "danger_zone.hpp"
 
@@ -154,7 +157,7 @@ public:
         std::string file_name,
         const std::vector<std::string> &topic_names, const std::vector<std::string> &topic_types )
     {
-        auto trig_msg = 
+        auto trig_msg =
             std::make_unique<danger_zone_msgs::msg::SnapshotTriggered>();
 
         trig_msg->header = std_msgs::msg::Header();
@@ -278,12 +281,12 @@ private:
 
     void set_ego_shape()
     {
-        // For demo only. Create an ego shape with eight vertices. 
+        // For demo only. Create an ego shape with eight vertices.
         // In production you would set these in config and read them in here.
-        // If the shape of the ego can change, for example if it has 
-        // an articulated arm, then the shape would be more complex and 
+        // If the shape of the ego can change, for example if it has
+        // an articulated arm, then the shape would be more complex and
         // would have to be updated at runtime.
-        
+
         m_ego_shape.push_back(zones_t::point_3d(4,2,4));
         m_ego_shape.push_back(zones_t::point_3d(4,2,4));
         m_ego_shape.push_back(zones_t::point_3d(4,-2,4));

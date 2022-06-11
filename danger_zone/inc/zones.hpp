@@ -1,7 +1,10 @@
-/////////////////////////////////////////////
-// Copyright (c) Gaia Platform LLC
-// All rights reserved.
-/////////////////////////////////////////////
+////////////////////////////////////////////////////
+// Copyright (c) Gaia Platform Authors
+//
+// Use of this source code is governed by the MIT
+// license that can be found in the LICENSE.txt file
+// or at https://opensource.org/licenses/MIT.
+////////////////////////////////////////////////////
 
 #pragma once
 
@@ -45,15 +48,15 @@ public:
      * Return the zone_id based on the minimum distance between two 3D shapes
      */
     static uint8_t get_range_zone_id(
-        const std::vector<zones_t::point_3d> &shape1, 
+        const std::vector<zones_t::point_3d> &shape1,
         const std::vector<zones_t::point_3d> &shape2);
 
     /**
      * Return the zone_id based on the minimum distance between two detected objects
      */
-    static uint8_t get_range_zone_id( 
-        double pos_x, double pos_y, double pos_z, 
-        double size_x, double size_y, double size_z, 
+    static uint8_t get_range_zone_id(
+        double pos_x, double pos_y, double pos_z,
+        double size_x, double size_y, double size_z,
         double orient_x, double orient_y, double orient_z, double orient_w );
 
     /**
@@ -117,7 +120,7 @@ private:
      * Find the shortest distance between two shapes.
      */
     static double get_range(
-        const std::vector<zones_t::point_3d> &shape1, 
+        const std::vector<zones_t::point_3d> &shape1,
         const std::vector<zones_t::point_3d> &shape2);
 
     /**
